@@ -21,20 +21,34 @@ PanelWindow {
         right: true
     }
 
-    // Read apps from JSON file
-    FileView {
-        id: appsFile
-        path: "/tmp/quickshutdown-apps.json"
-        adapter: JsonAdapter {}
+    property var appsList: []
+    
+    // Read apps from JSON file periodically
+    Process {
+        id: readAppsProcess
+        command: ["cat", "/tmp/quickshutdown-apps.json"]
+        running: true
+        
+        stdout: SplitParser {
+            splitMarker: ""
+            
+            onRead: function(data) {
+                try {
+                    root.appsList = JSON.parse(data);
+                } catch (e) {
+                    console.log("Failed to parse apps JSON:", e);
+                }
+            }
+        }
     }
     
-    // Timer to refresh file view
+    // Timer to refresh app list
     Timer {
         interval: 500
         running: true
         repeat: true
         onTriggered: {
-            appsFile.reload()
+            readAppsProcess.running = true
         }
     }
 
@@ -72,7 +86,7 @@ PanelWindow {
                 spacing: 15
 
                 Text {
-                    text: "Shutting down..."
+                    text: "Shutting down... (" + root.appsList.length + " apps)"
                     color: "#a9b1d6"
                     font.family: "Inter"
                     font.pixelSize: 28
@@ -92,7 +106,7 @@ PanelWindow {
 
                         ListView {
                             id: appList
-                            model: appsFile.data
+                            model: root.appsList
                             
                             delegate: Rectangle {
                                 required property var modelData

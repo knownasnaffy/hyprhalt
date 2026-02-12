@@ -141,16 +141,19 @@ def main():
     # Show detailed UI
     if args.verbose:
         print(f"{len(manager.windows)} windows remain, showing detailed UI")
-    manager.show_detailed_ui()
-
+    
     # Start D-Bus service
     try:
         dbus_service = start_service(manager)
         if args.verbose:
             print("D-Bus service started")
+        # Write initial apps file before showing UI
+        dbus_service.update_apps_file()
     except Exception as e:
         print(f"Warning: Failed to start D-Bus service: {e}")
         dbus_service = None
+    
+    manager.show_detailed_ui()
 
     # Continue polling with escalation
     last_sigterm = 0
