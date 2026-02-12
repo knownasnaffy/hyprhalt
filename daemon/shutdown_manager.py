@@ -1,5 +1,6 @@
 """Core shutdown orchestration."""
 
+import json
 import os
 import subprocess
 import time
@@ -8,6 +9,7 @@ from typing import Optional
 
 from . import hyprland_ipc
 from .app_tracker import App, filter_own_process
+from .config import Config
 
 
 class ShutdownManager:
@@ -17,6 +19,7 @@ class ShutdownManager:
         self,
         windows: list[App],
         layers: list[App],
+        config: Config,
         dry_run: bool = False,
         no_exit: bool = False,
         post_cmd: Optional[str] = None,
@@ -24,6 +27,7 @@ class ShutdownManager:
     ):
         self.windows = windows
         self.layers = layers
+        self.config = config
         self.start_time = time.time()
         self.simple_ui_process: Optional[subprocess.Popen] = None
         self.detailed_ui_process: Optional[subprocess.Popen] = None
@@ -40,6 +44,7 @@ class ShutdownManager:
 
     def show_simple_ui(self):
         """Launch simple 'Exiting...' overlay."""
+        self._write_config_for_ui()
         ui_path = self._get_ui_path("simple.qml")
         if ui_path:
             try:
@@ -234,3 +239,26 @@ class ShutdownManager:
                 return path
 
         return None
+
+    def _write_config_for_ui(self):
+        """Write config to JSON file for UI consumption."""
+        config_data = {
+            "colors": {
+                "backdrop": self.config.colors.backdrop,
+                "backdrop_opacity": self.config.colors.backdrop_opacity,
+                "modal_bg": self.config.colors.modal_bg,
+                "modal_border": self.config.colors.modal_border,
+                "text_primary": self.config.colors.text_primary,
+                "text_secondary": self.config.colors.text_secondary,
+                "accent_danger": self.config.colors.accent_danger,
+                "status_alive": self.config.colors.status_alive,
+                "status_closed": self.config.colors.status_closed,
+            },
+            "ui": {
+                "border_radius": self.config.ui.border_radius,
+                "modal_border_radius": self.config.ui.modal_border_radius,
+            }
+        }
+        
+        with open("/tmp/quickshutdown-config.json", "w") as f:
+            json.dump(config_data, f)

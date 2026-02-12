@@ -2,8 +2,10 @@ import QtQuick
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Wayland
+import Quickshell.Io
 
 PanelWindow {
+    id: root
     aboveWindows: true
     focusable: false
     exclusionMode: ExclusionMode.Ignore
@@ -17,9 +19,31 @@ PanelWindow {
         right: true
     }
 
+    property var config: ({})
+
+    Process {
+        id: readConfigProcess
+        command: ["cat", "/tmp/quickshutdown-config.json"]
+        running: true
+        
+        stdout: SplitParser {
+            splitMarker: ""
+            
+            onRead: function(data) {
+                try {
+                    root.config = JSON.parse(data);
+                } catch (e) {}
+            }
+        }
+    }
+
     Rectangle {
         anchors.fill: parent
-        color: Qt.rgba(22 / 225, 22 / 225, 30 / 225, 0.7)
+        color: {
+            var rgb = (root.config.colors?.backdrop || "12,14,20").split(",");
+            var opacity = root.config.colors?.backdrop_opacity || 0.7;
+            return Qt.rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, opacity);
+        }
 
         Text {
             id: clock
@@ -28,7 +52,10 @@ PanelWindow {
             property int maxDots: 3
 
             text: "Exiting" + ".".repeat(dots)
-            color: "#a9b1d6"
+            color: {
+                var rgb = (root.config.colors?.text_secondary || "169,177,214").split(",");
+                return Qt.rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, 1);
+            }
             font.family: "Inter"
             font.pixelSize: 36
             font.weight: Font.Medium

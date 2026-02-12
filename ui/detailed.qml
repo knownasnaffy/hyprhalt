@@ -10,6 +10,7 @@ PanelWindow {
     id: root
 
     property var appsList: []
+    property var config: ({})
 
     aboveWindows: true
     focusable: true
@@ -22,6 +23,23 @@ PanelWindow {
         bottom: true
         left: true
         right: true
+    }
+
+    // Read config from JSON file
+    Process {
+        id: readConfigProcess
+        command: ["cat", "/tmp/quickshutdown-config.json"]
+        running: true
+        
+        stdout: SplitParser {
+            splitMarker: ""
+            
+            onRead: function(data) {
+                try {
+                    root.config = JSON.parse(data);
+                } catch (e) {}
+            }
+        }
     }
 
     // Read apps from JSON file periodically
@@ -69,17 +87,27 @@ PanelWindow {
 
     Rectangle {
         anchors.fill: parent
-        color: Qt.rgba(12 / 255, 14 / 255, 20 / 255, 0.7)
+        color: {
+            var rgb = (root.config.colors?.backdrop || "12,14,20").split(",");
+            var opacity = root.config.colors?.backdrop_opacity || 0.7;
+            return Qt.rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, opacity);
+        }
 
         Rectangle {
             anchors.centerIn: parent
-            radius: 16
+            radius: root.config.ui?.border_radius || 16
             border.width: 0.5
-            border.color: "#292e42"
+            border.color: {
+                var rgb = (root.config.colors?.modal_border || "41,46,66").split(",");
+                return Qt.rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, 1);
+            }
             border.pixelAligned: true
             width: 600
             height: parent.height * 0.4
-            color: "#1b1e2d"
+            color: {
+                var rgb = (root.config.colors?.modal_bg || "27,30,45").split(",");
+                return Qt.rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, 1);
+            }
 
             Column {
                 anchors.top: parent.top
@@ -92,7 +120,10 @@ PanelWindow {
 
                 Text {
                     text: "Closing apps"
-                    color: "#c0caf5"
+                    color: {
+                        var rgb = (root.config.colors?.text_primary || "192,202,245").split(",");
+                        return Qt.rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, 1);
+                    }
                     font.pixelSize: 20
                     font.family: "Cal Sans"
                 }
@@ -100,8 +131,14 @@ PanelWindow {
                 Rectangle {
                     width: parent.width - 48
                     height: parent.height - 90
-                    radius: 10
-                    color: "#24283b"
+                    radius: root.config.ui?.modal_border_radius || 10
+                    color: {
+                        var rgb = (root.config.colors?.modal_bg || "27,30,45").split(",");
+                        var r = Math.max(0, rgb[0] - 10);
+                        var g = Math.max(0, rgb[1] - 10);
+                        var b = Math.max(0, rgb[2] - 10);
+                        return Qt.rgba(r/255, g/255, b/255, 1);
+                    }
                     clip: true
 
                     ScrollView {
@@ -130,7 +167,10 @@ PanelWindow {
 
                                     Text {
                                         text: modelData.appName || "Unknown"
-                                        color: "#c0caf5"
+                                        color: {
+                                            var rgb = (root.config.colors?.text_primary || "192,202,245").split(",");
+                                            return Qt.rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, 1);
+                                        }
                                         font.family: "Inter"
                                         font.pixelSize: 16
                                         Layout.fillWidth: true
@@ -138,7 +178,12 @@ PanelWindow {
 
                                     Text {
                                         text: modelData.appStatus || "unknown"
-                                        color: modelData.appStatus === "alive" ? "#e0af68" : "#9ece6a"
+                                        color: {
+                                            var rgb = modelData.appStatus === "alive" 
+                                                ? (root.config.colors?.status_alive || "224,175,104").split(",")
+                                                : (root.config.colors?.status_closed || "158,206,106").split(",");
+                                            return Qt.rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, 1);
+                                        }
                                         font.family: "Inter"
                                         font.pixelSize: 14
                                     }
@@ -162,12 +207,21 @@ PanelWindow {
                 anchors.horizontalCenter: parent.horizontalCenter
                 width: parent.width
                 height: 72
-                color: "#24283b"
+                color: {
+                    var rgb = (root.config.colors?.modal_bg || "27,30,45").split(",");
+                    var r = Math.max(0, rgb[0] - 10);
+                    var g = Math.max(0, rgb[1] - 10);
+                    var b = Math.max(0, rgb[2] - 10);
+                    return Qt.rgba(r/255, g/255, b/255, 1);
+                }
                 border.width: 0.5
-                border.color: "#292e42"
+                border.color: {
+                    var rgb = (root.config.colors?.modal_border || "41,46,66").split(",");
+                    return Qt.rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, 1);
+                }
                 border.pixelAligned: true
-                bottomLeftRadius: 16
-                bottomRightRadius: 16
+                bottomLeftRadius: root.config.ui?.border_radius || 16
+                bottomRightRadius: root.config.ui?.border_radius || 16
 
                 Row {
                     spacing: 16
@@ -185,13 +239,22 @@ PanelWindow {
 
                         width: 90
                         height: 36
-                        radius: 10
-                        color: hovered ? Qt.rgba(192 / 255, 202 / 255, 245 / 255, 0.1) : Qt.rgba(0.2, 0.2, 0.3, 0)
+                        radius: root.config.ui?.modal_border_radius || 10
+                        color: {
+                            if (hovered) {
+                                var rgb = (root.config.colors?.text_primary || "192,202,245").split(",");
+                                return Qt.rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, 0.1);
+                            }
+                            return Qt.rgba(0.2, 0.2, 0.3, 0);
+                        }
 
                         Text {
                             anchors.centerIn: parent
                             text: "Cancel"
-                            color: "#c0caf5"
+                            color: {
+                                var rgb = (root.config.colors?.text_primary || "192,202,245").split(",");
+                                return Qt.rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, 1);
+                            }
                             font.pixelSize: 14
                             font.family: "Inter"
                         }
@@ -213,14 +276,20 @@ PanelWindow {
 
                         width: 120
                         height: 36
-                        radius: 10
-                        color: "#f7768e"
+                        radius: root.config.ui?.modal_border_radius || 10
+                        color: {
+                            var rgb = (root.config.colors?.accent_danger || "247,118,142").split(",");
+                            return Qt.rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, 1);
+                        }
                         opacity: hovered ? 0.9 : 1
 
                         Text {
                             anchors.centerIn: parent
                             text: "Force Close"
-                            color: "#24283b"
+                            color: {
+                                var rgb = (root.config.colors?.modal_bg || "27,30,45").split(",");
+                                return Qt.rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, 1);
+                            }
                             font.pixelSize: 14
                             font.family: "Inter"
                             font.weight: Font.Medium

@@ -10,6 +10,7 @@ from gi.repository import GLib
 from .app_tracker import get_all_apps, filter_own_process
 from .shutdown_manager import ShutdownManager
 from .dbus_service import start_service
+from .config import load_config
 
 
 def daemonize():
@@ -101,10 +102,16 @@ def main():
     if args.verbose:
         print(f"Found {len(windows)} windows and {len(layers)} layers")
 
+    # Load configuration
+    config = load_config()
+    if args.verbose:
+        print(f"Loaded config: sigterm={config.timing.sigterm_delay}s, sigkill={config.timing.sigkill_delay}s")
+
     # Create shutdown manager
     manager = ShutdownManager(
         windows=windows,
         layers=layers,
+        config=config,
         dry_run=args.dry_run,
         no_exit=args.no_exit,
         post_cmd=args.post_cmd,
@@ -206,17 +213,17 @@ def main():
 
         elapsed = manager.elapsed()
 
-        # Escalate at 8 seconds
-        if elapsed >= 8.0 and last_sigterm == 0:
+        # Escalate at configured sigterm_delay
+        if elapsed >= manager.config.timing.sigterm_delay and last_sigterm == 0:
             if args.verbose:
-                print("8 seconds elapsed, escalating to SIGTERM")
+                print(f"{manager.config.timing.sigterm_delay} seconds elapsed, escalating to SIGTERM")
             manager.escalate_sigterm()
             last_sigterm = elapsed
 
-        # Escalate at 15 seconds
-        if elapsed >= 15.0 and last_sigkill == 0:
+        # Escalate at configured sigkill_delay
+        if elapsed >= manager.config.timing.sigkill_delay and last_sigkill == 0:
             if args.verbose:
-                print("15 seconds elapsed, escalating to SIGKILL")
+                print(f"{manager.config.timing.sigkill_delay} seconds elapsed, escalating to SIGKILL")
             manager.escalate_sigkill()
             last_sigkill = elapsed
 
