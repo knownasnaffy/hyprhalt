@@ -100,7 +100,12 @@ class ShutdownManager:
             return
         
         for layer in self.layers:
-            layer.quit()
+            # Layers need SIGTERM since they can't use closewindow
+            if layer.pid > 0:
+                try:
+                    os.kill(layer.pid, signal.SIGTERM)
+                except OSError:
+                    pass
     
     def poll_windows(self) -> bool:
         """Check window status and return True if any are alive."""

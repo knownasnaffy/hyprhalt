@@ -43,14 +43,8 @@ class App:
             success = hyprland_ipc.close_window(self.address)
             if success:
                 self.status = "closing"
-        else:
-            # Use SIGTERM for layers and windowless processes
-            if self.pid > 0:
-                try:
-                    os.kill(self.pid, signal.SIGTERM)
-                    self.status = "closing"
-                except OSError:
-                    pass
+        # For layers and children without addresses, don't send SIGTERM yet
+        # They will be handled by check_windowless_pids() or escalation
     
     def kill(self):
         """Force kill with SIGKILL."""
