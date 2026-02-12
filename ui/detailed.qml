@@ -3,11 +3,14 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
-import Quickshell.Wayland
 import Quickshell.Io
+import Quickshell.Wayland
 
 PanelWindow {
     id: root
+
+    property var appsList: []
+
     aboveWindows: true
     focusable: true
     exclusionMode: ExclusionMode.Ignore
@@ -21,17 +24,15 @@ PanelWindow {
         right: true
     }
 
-    property var appsList: []
-    
     // Read apps from JSON file periodically
     Process {
         id: readAppsProcess
+
         command: ["cat", "/tmp/quickshutdown-apps.json"]
         running: true
-        
+
         stdout: SplitParser {
             splitMarker: ""
-            
             onRead: function(data) {
                 try {
                     root.appsList = JSON.parse(data);
@@ -40,33 +41,30 @@ PanelWindow {
                 }
             }
         }
+
     }
-    
+
     // Timer to refresh app list
     Timer {
         interval: 500
         running: true
         repeat: true
         onTriggered: {
-            readAppsProcess.running = true
+            readAppsProcess.running = true;
         }
     }
 
     // D-Bus connection for cancel
     Process {
         id: cancelProcess
-        command: ["dbus-send", "--session", "--type=method_call",
-                  "--dest=org.hyprland.QuickShutdown",
-                  "/org/hyprland/QuickShutdown",
-                  "org.hyprland.QuickShutdown.Cancel"]
+
+        command: ["dbus-send", "--session", "--type=method_call", "--dest=org.hyprland.QuickShutdown", "/org/hyprland/QuickShutdown", "org.hyprland.QuickShutdown.Cancel"]
     }
 
     Process {
         id: forceKillProcess
-        command: ["dbus-send", "--session", "--type=method_call",
-                  "--dest=org.hyprland.QuickShutdown",
-                  "/org/hyprland/QuickShutdown",
-                  "org.hyprland.QuickShutdown.ForceKill"]
+
+        command: ["dbus-send", "--session", "--type=method_call", "--dest=org.hyprland.QuickShutdown", "/org/hyprland/QuickShutdown", "org.hyprland.QuickShutdown.ForceKill"]
     }
 
     Rectangle {
@@ -104,23 +102,30 @@ PanelWindow {
                     height: parent.height - 90
                     radius: 10
                     color: "#24283b"
+                    clip: true
 
                     ScrollView {
                         anchors.fill: parent
-                        anchors.margins: 10
+                        anchors.topMargin: 8
+                        anchors.bottomMargin: 8
+                        anchors.rightMargin: 8
+                        anchors.leftMargin: 20
 
                         ListView {
                             id: appList
+
                             model: root.appsList
-                            
+
                             delegate: Rectangle {
                                 required property var modelData
+
                                 width: ListView.view.width
                                 height: 40
                                 color: "transparent"
 
                                 RowLayout {
                                     anchors.fill: parent
+                                    anchors.rightMargin: 20
                                     spacing: 10
 
                                     Text {
@@ -137,11 +142,17 @@ PanelWindow {
                                         font.family: "Inter"
                                         font.pixelSize: 14
                                     }
+
                                 }
+
                             }
+
                         }
+
                     }
+
                 }
+
             }
 
             Rectangle {
@@ -169,6 +180,7 @@ PanelWindow {
 
                     Rectangle {
                         id: cancelBtn
+
                         property bool hovered: false
 
                         width: 90
@@ -191,10 +203,12 @@ PanelWindow {
                             onExited: cancelBtn.hovered = false
                             onClicked: cancelProcess.running = true
                         }
+
                     }
 
                     Rectangle {
                         id: forceBtn
+
                         property bool hovered: false
 
                         width: 120
@@ -219,9 +233,15 @@ PanelWindow {
                             onExited: forceBtn.hovered = false
                             onClicked: forceKillProcess.running = true
                         }
+
                     }
+
                 }
+
             }
+
         }
+
     }
+
 }
