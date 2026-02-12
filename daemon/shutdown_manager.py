@@ -2,13 +2,14 @@
 
 import json
 import os
+import signal
 import subprocess
 import time
 from pathlib import Path
 from typing import Optional
 
 from . import hyprland_ipc
-from .app_tracker import App, filter_own_process
+from .app_tracker import App
 from .config import Config
 
 

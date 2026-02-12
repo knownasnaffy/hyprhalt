@@ -1,6 +1,5 @@
 """Configuration management for quickshutdown."""
 
-import os
 from pathlib import Path
 from typing import NamedTuple
 
