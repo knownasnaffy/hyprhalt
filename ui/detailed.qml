@@ -220,8 +220,7 @@ PanelWindow {
                     return Qt.rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, 1);
                 }
                 border.pixelAligned: true
-                bottomLeftRadius: root.config.ui?.border_radius || 16
-                bottomRightRadius: root.config.ui?.border_radius || 16
+                radius: root.config.ui?.border_radius || 16
 
                 Row {
                     spacing: 16
