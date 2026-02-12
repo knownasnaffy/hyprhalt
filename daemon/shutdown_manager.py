@@ -41,15 +41,20 @@ class ShutdownManager:
     def show_simple_ui(self):
         """Launch simple 'Exiting...' overlay."""
         ui_path = self._get_ui_path("simple.qml")
+        print(f"DEBUG: UI path for simple.qml: {ui_path}")
         if ui_path:
             try:
+                print(f"DEBUG: Launching quickshell with {ui_path}")
                 self.simple_ui_process = subprocess.Popen(
                     ["quickshell", "-p", str(ui_path)],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
                 )
+                print(f"DEBUG: UI process started with PID {self.simple_ui_process.pid}")
             except FileNotFoundError:
                 print("Warning: quickshell not found, running without UI")
+            except Exception as e:
+                print(f"Warning: Failed to start UI: {e}")
 
     def show_detailed_ui(self):
         """Replace simple UI with detailed UI."""
