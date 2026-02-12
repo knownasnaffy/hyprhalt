@@ -21,40 +21,17 @@ PanelWindow {
         right: true
     }
 
-    property string appsFilePath: ""
-    
-    // Get apps file path from D-Bus
-    Process {
-        id: getAppsFileProcess
-        command: ["dbus-send", "--session", "--print-reply",
-                  "--dest=org.hyprland.QuickShutdown",
-                  "/org/hyprland/QuickShutdown",
-                  "org.hyprland.QuickShutdown.GetAppsFile"]
-        running: true
-        
-        stdout: SplitParser {
-            splitMarker: "\n"
-            
-            onRead: data => {
-                var match = data.match(/string "([^"]+)"/);
-                if (match && match[1]) {
-                    root.appsFilePath = match[1];
-                }
-            }
-        }
-    }
-    
     // Read apps from JSON file
     FileView {
         id: appsFile
-        path: root.appsFilePath
+        path: "/tmp/quickshutdown-apps.json"
         adapter: JsonAdapter {}
     }
     
     // Timer to refresh file view
     Timer {
         interval: 500
-        running: root.appsFilePath !== ""
+        running: true
         repeat: true
         onTriggered: {
             appsFile.reload()

@@ -18,7 +18,7 @@ class QuickShutdownService(dbus.service.Object):
         super().__init__(bus_name, "/org/hyprland/QuickShutdown")
         self.cancelled = False
         self.force_killed = False
-        self.apps_file = f"/tmp/quickshutdown-apps-{os.getpid()}.json"
+        self.apps_file = "/tmp/quickshutdown-apps.json"
     
     @dbus.service.method("org.hyprland.QuickShutdown", in_signature='', out_signature='')
     def Cancel(self):
@@ -50,6 +50,7 @@ class QuickShutdownService(dbus.service.Object):
         try:
             with open(self.apps_file, 'w') as f:
                 json.dump(apps, f)
+            print(f"Updated apps file with {len(apps)} apps")
         except Exception as e:
             print(f"Failed to write apps file: {e}")
     
