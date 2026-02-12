@@ -4,8 +4,10 @@ import QtQuick.Layouts
 import Quickshell
 import Quickshell.Hyprland
 import Quickshell.Wayland
+import Quickshell.Io
 
 PanelWindow {
+    id: root
     aboveWindows: true
     focusable: true
     exclusionMode: ExclusionMode.Ignore
@@ -17,6 +19,23 @@ PanelWindow {
         bottom: true
         left: true
         right: true
+    }
+
+    // D-Bus connection
+    Process {
+        id: cancelProcess
+        command: ["dbus-send", "--session", "--type=method_call",
+                  "--dest=org.hyprland.QuickShutdown",
+                  "/org/hyprland/QuickShutdown",
+                  "org.hyprland.QuickShutdown.Cancel"]
+    }
+
+    Process {
+        id: forceKillProcess
+        command: ["dbus-send", "--session", "--type=method_call",
+                  "--dest=org.hyprland.QuickShutdown",
+                  "/org/hyprland/QuickShutdown",
+                  "org.hyprland.QuickShutdown.ForceKill"]
     }
 
     Rectangle {
@@ -102,8 +121,7 @@ PanelWindow {
                         Layout.preferredHeight: 40
 
                         onClicked: {
-                            // TODO: D-Bus call to cancel
-                            Qt.quit()
+                            cancelProcess.running = true
                         }
                     }
 
@@ -115,8 +133,7 @@ PanelWindow {
                         Layout.preferredHeight: 40
 
                         onClicked: {
-                            // TODO: D-Bus call to force kill
-                            Qt.quit()
+                            forceKillProcess.running = true
                         }
                     }
                 }

@@ -8,6 +8,7 @@ import time
 
 from .app_tracker import get_all_apps, filter_own_process
 from .shutdown_manager import ShutdownManager
+from .dbus_service import start_service
 
 
 def daemonize():
@@ -140,6 +141,15 @@ def main():
         print(f"{len(manager.windows)} windows remain, showing detailed UI")
     manager.show_detailed_ui()
 
+    # Start D-Bus service
+    try:
+        dbus_service = start_service(manager)
+        if args.verbose:
+            print("D-Bus service started")
+    except Exception as e:
+        print(f"Warning: Failed to start D-Bus service: {e}")
+        dbus_service = None
+
     # Continue polling with escalation
     last_sigterm = 0
     last_sigkill = 0
@@ -147,6 +157,22 @@ def main():
     while True:
         time.sleep(0.5)
         manager.check_windowless_pids()
+
+        # Check for cancel
+        if dbus_service and dbus_service.cancelled:
+            if args.verbose:
+                print("Shutdown cancelled by user")
+            manager.close_ui()
+            sys.exit(0)
+
+        # Check for force kill
+        if dbus_service and dbus_service.force_killed:
+            if args.verbose:
+                print("Force kill requested by user")
+            manager.escalate_sigkill()
+            time.sleep(1)
+            manager.finish_shutdown()
+            sys.exit(0)
 
         if not manager.poll_windows():
             # All windows closed
