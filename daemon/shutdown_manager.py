@@ -41,7 +41,7 @@ class ShutdownManager:
     def show_simple_ui(self):
         """Launch simple 'Exiting...' overlay."""
         ui_path = self._get_ui_path("simple.qml")
-        if ui_path and not self.dry_run:
+        if ui_path:
             try:
                 self.simple_ui_process = subprocess.Popen(
                     ["quickshell", "-p", str(ui_path)],
@@ -56,7 +56,7 @@ class ShutdownManager:
         self.close_ui()
 
         ui_path = self._get_ui_path("detailed.qml")
-        if ui_path and not self.dry_run:
+        if ui_path:
             try:
                 self.detailed_ui_process = subprocess.Popen(
                     ["quickshell", "-p", str(ui_path)],
