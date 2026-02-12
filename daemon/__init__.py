@@ -1,0 +1,1 @@
+"""Quickshutdown daemon package."""
