@@ -212,10 +212,11 @@ class ShutdownManager:
                 print(f"[DRY RUN] Would execute post-command: {self.post_cmd}")
             else:
                 try:
-                    subprocess.run(
-                        self.post_cmd,
-                        shell=True,
-                        check=False,
+                    # Run asynchronously like hyprshutdown does
+                    subprocess.Popen(
+                        ["/bin/sh", "-c", self.post_cmd],
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
                     )
                 except Exception as e:
                     print(f"Post-command failed: {e}")
