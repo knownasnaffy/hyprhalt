@@ -5,6 +5,7 @@ import os
 import signal
 import sys
 import time
+from gi.repository import GLib
 
 from .app_tracker import get_all_apps, filter_own_process
 from .shutdown_manager import ShutdownManager
@@ -137,6 +138,7 @@ def main():
         sys.exit(0)
 
     # Show detailed UI
+    # Show detailed UI
     if args.verbose:
         print(f"{len(manager.windows)} windows remain, showing detailed UI")
     manager.show_detailed_ui()
@@ -153,9 +155,14 @@ def main():
     # Continue polling with escalation
     last_sigterm = 0
     last_sigkill = 0
-
-    while True:
-        time.sleep(0.5)
+    
+    # Create GLib main loop for D-Bus
+    main_loop = GLib.MainLoop()
+    
+    def check_status():
+        """Periodic check called by GLib timeout."""
+        nonlocal last_sigterm, last_sigkill
+        
         manager.check_windowless_pids()
 
         # Check for cancel
@@ -163,7 +170,8 @@ def main():
             if args.verbose:
                 print("Shutdown cancelled by user")
             manager.close_ui()
-            sys.exit(0)
+            main_loop.quit()
+            return False
 
         # Check for force kill
         if dbus_service and dbus_service.force_killed:
@@ -172,14 +180,16 @@ def main():
             manager.escalate_sigkill()
             time.sleep(1)
             manager.finish_shutdown()
-            sys.exit(0)
+            main_loop.quit()
+            return False
 
         if not manager.poll_windows():
             # All windows closed
             if args.verbose:
                 print("All windows closed")
             manager.finish_shutdown()
-            sys.exit(0)
+            main_loop.quit()
+            return False
 
         elapsed = manager.elapsed()
 
@@ -200,7 +210,23 @@ def main():
             # Force finish after SIGKILL
             time.sleep(1)
             manager.finish_shutdown()
-            sys.exit(0)
+            main_loop.quit()
+            return False
+        
+        return True  # Continue calling
+    
+    # Schedule periodic checks every 500ms
+    GLib.timeout_add(500, check_status)
+    
+    # Run main loop
+    try:
+        main_loop.run()
+    except KeyboardInterrupt:
+        if args.verbose:
+            print("Interrupted by user")
+        manager.close_ui()
+    
+    sys.exit(0)
 
 
 if __name__ == "__main__":
