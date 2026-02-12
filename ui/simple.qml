@@ -1,5 +1,6 @@
 import Quickshell
 import Quickshell.Wayland
+import QtQuick
 
 ShellRoot {
     Variants {
@@ -15,9 +16,8 @@ ShellRoot {
             
             color: "transparent"
             
-            layer: WlrLayer.Overlay
-            namespace: "quickshutdown-simple"
-            exclusionMode: ExclusionMode.Normal
+            WlrLayershell.layer: WlrLayer.Overlay
+            WlrLayershell.namespace: "quickshutdown-simple"
             
             Rectangle {
                 anchors.centerIn: parent

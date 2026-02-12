@@ -18,9 +18,8 @@ ShellRoot {
             
             color: "transparent"
             
-            layer: WlrLayer.Overlay
-            namespace: "quickshutdown-detailed"
-            exclusionMode: ExclusionMode.Normal
+            WlrLayershell.layer: WlrLayer.Overlay
+            WlrLayershell.namespace: "quickshutdown-detailed"
             
             Rectangle {
                 anchors.centerIn: parent
