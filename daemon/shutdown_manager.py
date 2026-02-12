@@ -185,31 +185,40 @@ class ShutdownManager:
         self.close_ui()
         self.close_all_layers()
 
-        if not self.no_exit and not self.dry_run:
-            hyprland_ipc.exit_hyprland()
+        if not self.no_exit:
+            if self.dry_run:
+                print("[DRY RUN] Would exit Hyprland")
+            else:
+                hyprland_ipc.exit_hyprland()
 
         # VT switch for NVIDIA+SDDM
-        if self.vt_switch and not self.dry_run:
-            try:
-                subprocess.run(
-                    ["sudo", "-n", "chvt", str(self.vt_switch)],
-                    check=False,
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                )
-            except FileNotFoundError:
-                pass
+        if self.vt_switch:
+            if self.dry_run:
+                print(f"[DRY RUN] Would switch to VT {self.vt_switch}")
+            else:
+                try:
+                    subprocess.run(
+                        ["sudo", "-n", "chvt", str(self.vt_switch)],
+                        check=False,
+                        stdout=subprocess.DEVNULL,
+                        stderr=subprocess.DEVNULL,
+                    )
+                except FileNotFoundError:
+                    pass
 
         # Run post-exit command
-        if self.post_cmd and not self.dry_run:
-            try:
-                subprocess.run(
-                    self.post_cmd,
-                    shell=True,
-                    check=False,
-                )
-            except Exception as e:
-                print(f"Post-command failed: {e}")
+        if self.post_cmd:
+            if self.dry_run:
+                print(f"[DRY RUN] Would execute post-command: {self.post_cmd}")
+            else:
+                try:
+                    subprocess.run(
+                        self.post_cmd,
+                        shell=True,
+                        check=False,
+                    )
+                except Exception as e:
+                    print(f"Post-command failed: {e}")
 
     def _get_ui_path(self, filename: str) -> Optional[Path]:
         """Find UI file in installation directories."""
