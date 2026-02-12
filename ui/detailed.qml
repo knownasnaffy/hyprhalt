@@ -95,7 +95,7 @@ PanelWindow {
 
         Rectangle {
             anchors.centerIn: parent
-            radius: root.config.ui?.border_radius || 16
+            radius: root.config.ui?.border_radius !== undefined ? root.config.ui.border_radius : 16
             border.width: 0.5
             border.color: {
                 var rgb = (root.config.colors?.modal_border || "41,46,66").split(",");
@@ -131,7 +131,7 @@ PanelWindow {
                 Rectangle {
                     width: parent.width - 48
                     height: parent.height - 90
-                    radius: root.config.ui?.modal_border_radius || 10
+                    radius: root.config.ui?.modal_border_radius !== undefined ? root.config.ui.modal_border_radius : 10
                     color: {
                         var rgb = (root.config.colors?.modal_bg || "27,30,45").split(",");
                         var r = Math.max(0, rgb[0] - 10);
@@ -220,7 +220,8 @@ PanelWindow {
                     return Qt.rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, 1);
                 }
                 border.pixelAligned: true
-                radius: root.config.ui?.border_radius || 16
+                bottomLeftRadius: root.config.ui?.border_radius !== undefined ? root.config.ui.border_radius : 16
+                bottomRightRadius: root.config.ui?.border_radius !== undefined ? root.config.ui.border_radius : 16
 
                 Row {
                     spacing: 16
@@ -238,7 +239,7 @@ PanelWindow {
 
                         width: 90
                         height: 36
-                        radius: root.config.ui?.modal_border_radius || 10
+                        radius: root.config.ui?.modal_border_radius !== undefined ? root.config.ui.modal_border_radius : 10
                         color: {
                             if (hovered) {
                                 var rgb = (root.config.colors?.text_primary || "192,202,245").split(",");
@@ -276,7 +277,7 @@ PanelWindow {
 
                         width: 120
                         height: 36
-                        radius: root.config.ui?.modal_border_radius || 10
+                        radius: root.config.ui?.modal_border_radius !== undefined ? root.config.ui.modal_border_radius : 10
                         color: {
                             var rgb = (root.config.colors?.accent_danger || "247,118,142").split(",");
                             return Qt.rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, 1);
