@@ -13,11 +13,13 @@ ShellRoot {
             screen: modelData
             
             anchors {
-                fill: true
+                left: true
+                top: true
+                right: true
+                bottom: true
             }
             
             color: "transparent"
-            
             WlrLayershell.layer: WlrLayer.Overlay
             WlrLayershell.namespace: "quickshutdown-detailed"
             
