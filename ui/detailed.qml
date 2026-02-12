@@ -30,10 +30,10 @@ PanelWindow {
         id: readConfigProcess
         command: ["cat", "/tmp/quickshutdown-config.json"]
         running: true
-        
+
         stdout: SplitParser {
             splitMarker: ""
-            
+
             onRead: function(data) {
                 try {
                     root.config = JSON.parse(data);
@@ -179,7 +179,7 @@ PanelWindow {
                                     Text {
                                         text: modelData.appStatus || "unknown"
                                         color: {
-                                            var rgb = modelData.appStatus === "alive" 
+                                            var rgb = modelData.appStatus === "alive"
                                                 ? (root.config.colors?.status_alive || "224,175,104").split(",")
                                                 : (root.config.colors?.status_closed || "158,206,106").split(",");
                                             return Qt.rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, 1);
@@ -265,6 +265,7 @@ PanelWindow {
                             onEntered: cancelBtn.hovered = true
                             onExited: cancelBtn.hovered = false
                             onClicked: cancelProcess.running = true
+                            cursorShape: Qt.PointingHandCursor
                         }
 
                     }
@@ -301,6 +302,7 @@ PanelWindow {
                             onEntered: forceBtn.hovered = true
                             onExited: forceBtn.hovered = false
                             onClicked: forceKillProcess.running = true
+                            cursorShape: Qt.PointingHandCursor
                         }
 
                     }
