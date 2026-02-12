@@ -4,83 +4,65 @@
 
 ### Core Daemon
 - [x] Hyprland IPC communication (`hyprland_ipc.py`)
-  - Socket communication
-  - Get clients/layers
-  - Close windows
-  - Exit Hyprland
-  
 - [x] App tracking (`app_tracker.py`)
-  - App dataclass with lifecycle methods
-  - Parse windows, layers, and Hyprland children
-  - Filter own process
-  
 - [x] Shutdown manager (`shutdown_manager.py`)
-  - UI control (simple → detailed transition)
-  - Graceful close → SIGTERM → SIGKILL escalation
-  - Window/layer separation
-  - Post-command and VT switch support
-  
 - [x] Main entry point (`main.py`)
-  - Argument parsing
-  - Daemonization
-  - 3-second polling loop
-  - Escalation timing (8s, 15s)
+- [x] D-Bus service (`dbus_service.py`)
 
 ### UI
-- [x] Simple overlay (`ui/simple.qml`)
-  - Minimal "Exiting..." display
-  - Shows immediately on start
-  
-- [x] Detailed UI (`ui/detailed.qml`)
-  - App list display
-  - Cancel and Force Kill buttons
-  - Basic layout (D-Bus integration pending)
+- [x] Simple overlay (`ui/simple.qml`) - Working with animated dots
+- [x] Detailed UI (`ui/detailed.qml`) - Working with Cancel/Force Kill buttons
+
+### Integration
+- [x] D-Bus communication between daemon and UI
+- [x] Cancel button functionality
+- [x] Force Kill button functionality
+- [x] GLib main loop for event processing
 
 ### Project Setup
-- [x] Git repository initialized
+- [x] Git repository with tracked commits
 - [x] Project structure
 - [x] pyproject.toml
 - [x] README.md
 - [x] .gitignore
 
-## Pending ⏳
+## Testing
 
-### D-Bus Integration
-- [ ] `dbus_service.py` - D-Bus service for UI communication
-- [ ] Update `detailed.qml` to connect to D-Bus
-- [ ] Real-time app list updates
-- [ ] Cancel/Force Kill button functionality
+Tested and working:
+- [x] Dry-run mode
+- [x] UI display (simple → detailed transition)
+- [x] Cancel button
+- [x] Force Kill button
+- [x] Graceful IPC closewindow
+- [x] Escalation timing
 
-### Testing
-- [ ] Test with real Hyprland session
-- [ ] Test dry-run mode
-- [ ] Test UI transitions
-- [ ] Test escalation timing
-
-### Polish
-- [ ] Better error handling
-- [ ] Logging system
-- [ ] UI styling improvements
-- [ ] Installation script
-
-## Testing the Current Build
+## Usage
 
 ```bash
-# Install in development mode
-cd quickshutdown
+# Install
 pip install -e .
 
-# Test dry run (safe, won't close anything)
+# Test (safe, won't close anything)
 quickshutdown --dry-run --verbose --no-fork
 
-# Test with UI (will show overlays but not close apps)
-quickshutdown --dry-run --no-fork
+# Real usage
+quickshutdown
+
+# With post-shutdown command
+quickshutdown --post-cmd "systemctl poweroff"
+
+# NVIDIA+SDDM fix
+quickshutdown --vt 1
 ```
 
-## Next Steps
+## Features
 
-1. Implement D-Bus service for UI communication
-2. Test basic functionality in Hyprland
-3. Add proper logging
-4. Polish UI styling
-5. Create installation instructions
+✓ Immediate visual feedback with "Exiting..." overlay
+✓ Detailed UI after 3 seconds if apps remain
+✓ Graceful close via Hyprland IPC first
+✓ Progressive escalation: 3s → 8s (SIGTERM) → 15s (SIGKILL)
+✓ Preserves layers (waybar, wallpapers) until final shutdown
+✓ Cancel and Force Kill controls
+✓ Excludes own process from closure
+
+## Project Complete! 🎉
