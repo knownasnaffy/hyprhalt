@@ -164,12 +164,18 @@ def main():
         nonlocal last_sigterm, last_sigkill
         
         manager.check_windowless_pids()
+        
+        # Update apps file for UI
+        if dbus_service:
+            dbus_service.update_apps_file()
 
         # Check for cancel
         if dbus_service and dbus_service.cancelled:
             if args.verbose:
                 print("Shutdown cancelled by user")
             manager.close_ui()
+            if dbus_service:
+                dbus_service.cleanup()
             main_loop.quit()
             return False
 
@@ -180,6 +186,8 @@ def main():
             manager.escalate_sigkill()
             time.sleep(1)
             manager.finish_shutdown()
+            if dbus_service:
+                dbus_service.cleanup()
             main_loop.quit()
             return False
 
@@ -188,6 +196,8 @@ def main():
             if args.verbose:
                 print("All windows closed")
             manager.finish_shutdown()
+            if dbus_service:
+                dbus_service.cleanup()
             main_loop.quit()
             return False
 
@@ -210,6 +220,8 @@ def main():
             # Force finish after SIGKILL
             time.sleep(1)
             manager.finish_shutdown()
+            if dbus_service:
+                dbus_service.cleanup()
             main_loop.quit()
             return False
         

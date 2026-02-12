@@ -21,7 +21,47 @@ PanelWindow {
         right: true
     }
 
-    // D-Bus connection
+    property string appsFilePath: ""
+    
+    // Get apps file path from D-Bus
+    Process {
+        id: getAppsFileProcess
+        command: ["dbus-send", "--session", "--print-reply",
+                  "--dest=org.hyprland.QuickShutdown",
+                  "/org/hyprland/QuickShutdown",
+                  "org.hyprland.QuickShutdown.GetAppsFile"]
+        running: true
+        
+        stdout: SplitParser {
+            splitMarker: "\n"
+            
+            onRead: data => {
+                var match = data.match(/string "([^"]+)"/);
+                if (match && match[1]) {
+                    root.appsFilePath = match[1];
+                }
+            }
+        }
+    }
+    
+    // Read apps from JSON file
+    FileView {
+        id: appsFile
+        path: root.appsFilePath
+        adapter: JsonAdapter {}
+    }
+    
+    // Timer to refresh file view
+    Timer {
+        interval: 500
+        running: root.appsFilePath !== ""
+        repeat: true
+        onTriggered: {
+            appsFile.reload()
+        }
+    }
+
+    // D-Bus connection for cancel
     Process {
         id: cancelProcess
         command: ["dbus-send", "--session", "--type=method_call",
@@ -75,12 +115,10 @@ PanelWindow {
 
                         ListView {
                             id: appList
-                            model: ListModel {
-                                // Will be populated via D-Bus
-                                ListElement { appName: "Example App"; appStatus: "closing" }
-                            }
-
+                            model: appsFile.data
+                            
                             delegate: Rectangle {
+                                required property var modelData
                                 width: ListView.view.width
                                 height: 40
                                 color: "transparent"
@@ -90,7 +128,7 @@ PanelWindow {
                                     spacing: 10
 
                                     Text {
-                                        text: appName
+                                        text: modelData.appName || "Unknown"
                                         color: "#c0caf5"
                                         font.family: "Inter"
                                         font.pixelSize: 16
@@ -98,8 +136,8 @@ PanelWindow {
                                     }
 
                                     Text {
-                                        text: appStatus
-                                        color: appStatus === "alive" ? "#e0af68" : "#9ece6a"
+                                        text: modelData.appStatus || "unknown"
+                                        color: modelData.appStatus === "alive" ? "#e0af68" : "#9ece6a"
                                         font.family: "Inter"
                                         font.pixelSize: 14
                                     }
