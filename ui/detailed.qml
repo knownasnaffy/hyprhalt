@@ -71,34 +71,39 @@ PanelWindow {
 
     Rectangle {
         anchors.fill: parent
-        color: Qt.rgba(22 / 225, 22 / 225, 30 / 225, 0.8)
+        color: Qt.rgba(12 / 255, 14 / 255, 20 / 255, 0.7)
 
         Rectangle {
             anchors.centerIn: parent
-            width: 500
-            height: 400
-            color: Qt.rgba(30 / 225, 30 / 225, 46 / 225, 0.95)
-            radius: 15
+            radius: 16
+            border.width: 0.5
+            border.color: "#292e42"
+            border.pixelAligned: true
+            width: 600
+            height: parent.height * 0.4
+            color: "#1b1e2d"
 
-            ColumnLayout {
-                anchors.fill: parent
-                anchors.margins: 20
-                spacing: 15
+            Column {
+                anchors.top: parent.top
+                anchors.bottom: footer.top
+                anchors.right: parent.right
+                anchors.left: parent.left
+                padding: 24
+                topPadding: 20
+                spacing: 16
 
                 Text {
-                    text: "Shutting down... (" + root.appsList.length + " apps)"
-                    color: "#a9b1d6"
-                    font.family: "Inter"
-                    font.pixelSize: 28
-                    font.weight: Font.Medium
-                    Layout.alignment: Qt.AlignHCenter
+                    text: "Closing apps"
+                    color: "#c0caf5"
+                    font.pixelSize: 20
+                    font.family: "Cal Sans"
                 }
 
                 Rectangle {
-                    Layout.fillWidth: true
-                    Layout.fillHeight: true
-                    color: Qt.rgba(255, 255, 255, 0.05)
-                    radius: 8
+                    width: parent.width - 48
+                    height: parent.height - 90
+                    radius: 10
+                    color: "#24283b"
 
                     ScrollView {
                         anchors.fill: parent
@@ -137,32 +142,82 @@ PanelWindow {
                         }
                     }
                 }
+            }
 
-                RowLayout {
-                    Layout.alignment: Qt.AlignHCenter
-                    spacing: 15
+            Rectangle {
+                id: footer
 
-                    Button {
-                        text: "Cancel"
-                        font.family: "Inter"
-                        font.pixelSize: 16
-                        Layout.preferredWidth: 120
-                        Layout.preferredHeight: 40
+                anchors.bottom: parent.bottom
+                anchors.horizontalCenter: parent.horizontalCenter
+                width: parent.width
+                height: 72
+                color: "#24283b"
+                border.width: 0.5
+                border.color: "#292e42"
+                border.pixelAligned: true
+                bottomLeftRadius: 16
+                bottomRightRadius: 16
 
-                        onClicked: {
-                            cancelProcess.running = true
+                Row {
+                    spacing: 16
+
+                    anchors {
+                        right: parent.right
+                        verticalCenter: parent.verticalCenter
+                        rightMargin: 24
+                    }
+
+                    Rectangle {
+                        id: cancelBtn
+                        property bool hovered: false
+
+                        width: 90
+                        height: 36
+                        radius: 10
+                        color: hovered ? Qt.rgba(192 / 255, 202 / 255, 245 / 255, 0.1) : Qt.rgba(0.2, 0.2, 0.3, 0)
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "Cancel"
+                            color: "#c0caf5"
+                            font.pixelSize: 14
+                            font.family: "Inter"
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            onEntered: cancelBtn.hovered = true
+                            onExited: cancelBtn.hovered = false
+                            onClicked: cancelProcess.running = true
                         }
                     }
 
-                    Button {
-                        text: "Force Kill"
-                        font.family: "Inter"
-                        font.pixelSize: 16
-                        Layout.preferredWidth: 120
-                        Layout.preferredHeight: 40
+                    Rectangle {
+                        id: forceBtn
+                        property bool hovered: false
 
-                        onClicked: {
-                            forceKillProcess.running = true
+                        width: 120
+                        height: 36
+                        radius: 10
+                        color: "#f7768e"
+                        opacity: hovered ? 0.9 : 1
+
+                        Text {
+                            anchors.centerIn: parent
+                            text: "Force Close"
+                            color: "#24283b"
+                            font.pixelSize: 14
+                            font.family: "Inter"
+                            font.weight: Font.Medium
+                        }
+
+                        MouseArea {
+                            anchors.fill: parent
+                            hoverEnabled: true
+                            onEntered: forceBtn.hovered = true
+                            onExited: forceBtn.hovered = false
+                            onClicked: forceKillProcess.running = true
                         }
                     }
                 }
