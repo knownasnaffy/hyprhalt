@@ -19,3 +19,14 @@ build-backend = "setuptools.build_meta"
 [tool.setuptools.packages.find]
 include = ["daemon*"]
 exclude = ["ui*"]
+
+[tool.bumpversion]
+current_version = "0.1.0"
+commit = true
+tag = true
+message = "Bump version: {current_version} → {new_version}"
+
+[[tool.bumpversion.files]]
+filename = "pyproject.toml"
+search = 'version = "{current_version}"'
+replace = 'version = "{new_version}"'
