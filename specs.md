@@ -64,7 +64,7 @@ class App:
     is_xwayland: bool
     is_layer: bool           # True for layer shells
     status: str              # "closing", "alive", "dead"
-    
+
     def should_close_via_ipc() -> bool
     def is_alive() -> bool
     def quit()  # Graceful close
@@ -96,7 +96,7 @@ class ShutdownManager:
     post_cmd: str | None
     vt_switch: int | None
     own_pid: int
-    
+
     def start()
     def show_simple_ui()          # Launch simple "Exiting..." overlay
     def show_detailed_ui()        # Replace with detailed UI at 3s
@@ -123,22 +123,22 @@ class ShutdownManager:
 ```python
 class HyprHaltService:
     # D-Bus interface: org.hyprland.HyprHalt
-    
+
     @dbus.service.method("Cancel")
     def cancel()
-    
+
     @dbus.service.method("ForceKill")
     def force_kill()
-    
+
     @dbus.service.signal(signature='aa{sv}')
     def AppsUpdated(apps: list[dict])
-    
+
     @dbus.service.signal()
     def ShutdownComplete()
-    
+
     @dbus.service.property(signature='aa{sv}')
     def Apps() -> list[dict]
-    
+
     @dbus.service.property(signature='d')
     def ElapsedTime() -> float
 ```
@@ -161,11 +161,11 @@ LayerShellWindow {
     namespace: "hyprhalt-simple"
     layer: Layer.Overlay
     anchors.centerIn: parent
-    
+
     Rectangle {
         color: "#80000000"  // Semi-transparent black
         radius: 10
-        
+
         Text {
             text: "Exiting..."
             color: "white"
@@ -190,10 +190,10 @@ LayerShellWindow {
     namespace: "hyprhalt-detailed"
     layer: Layer.Overlay
     anchors: fill
-    
+
     Column {
         Text { text: "Shutting down..." }
-        
+
         // Window list (layers not shown)
         Repeater {
             model: shutdownService.apps
@@ -202,7 +202,7 @@ LayerShellWindow {
                 Text { text: modelData.status }
             }
         }
-        
+
         Row {
             Button {
                 text: "Cancel"
@@ -220,11 +220,11 @@ DBusService {
     id: shutdownService
     service: "org.hyprland.HyprHalt"
     path: "/org/hyprland/HyprHalt"
-    
+
     property var apps: []
     signal appsUpdated()
     signal shutdownComplete()
-    
+
     function cancel() { /* D-Bus call */ }
     function forceKill() { /* D-Bus call */ }
 }

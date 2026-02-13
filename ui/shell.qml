@@ -85,13 +85,13 @@ PanelWindow {
     Process {
         id: cancelProcess
         command: ["dbus-send", "--session", "--type=method_call", "--dest=org.hyprland.HyprHalt", "/org/hyprland/HyprHalt", "org.hyprland.HyprHalt.Cancel"]
-        
+
         stdout: SplitParser {
             onRead: function(data) {
                 console.log("Cancel D-Bus response:", data);
             }
         }
-        
+
         onExited: function(exitCode) {
             console.log("Cancel D-Bus exited with code:", exitCode);
         }
@@ -100,13 +100,13 @@ PanelWindow {
     Process {
         id: forceKillProcess
         command: ["dbus-send", "--session", "--type=method_call", "--dest=org.hyprland.HyprHalt", "/org/hyprland/HyprHalt", "org.hyprland.HyprHalt.ForceKill"]
-        
+
         stdout: SplitParser {
             onRead: function(data) {
                 console.log("ForceKill D-Bus response:", data);
             }
         }
-        
+
         onExited: function(exitCode) {
             console.log("ForceKill D-Bus exited with code:", exitCode);
         }

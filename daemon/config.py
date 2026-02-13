@@ -39,7 +39,7 @@ class Config(NamedTuple):
 
 def hex_to_rgb(hex_color: str) -> str:
     """Convert hex color (#RRGGBB) to 'R,G,B' string."""
-    hex_color = hex_color.lstrip('#')
+    hex_color = hex_color.lstrip("#")
     r, g, b = int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
     return f"{r},{g},{b}"
 
@@ -65,15 +65,47 @@ def load_config() -> Config:
     # Parse colors (convert hex to RGB if needed)
     colors_data = data.get("colors", {})
     colors = ColorConfig(
-        backdrop=hex_to_rgb(colors_data["backdrop"]) if "backdrop" in colors_data else "12,14,20",
+        backdrop=(
+            hex_to_rgb(colors_data["backdrop"])
+            if "backdrop" in colors_data
+            else "12,14,20"
+        ),
         backdrop_opacity=colors_data.get("backdrop_opacity", 0.7),
-        modal_bg=hex_to_rgb(colors_data["modal_bg"]) if "modal_bg" in colors_data else "27,30,45",
-        modal_border=hex_to_rgb(colors_data["modal_border"]) if "modal_border" in colors_data else "41,46,66",
-        text_primary=hex_to_rgb(colors_data["text_primary"]) if "text_primary" in colors_data else "192,202,245",
-        text_secondary=hex_to_rgb(colors_data["text_secondary"]) if "text_secondary" in colors_data else "169,177,214",
-        accent_danger=hex_to_rgb(colors_data["accent_danger"]) if "accent_danger" in colors_data else "247,118,142",
-        status_alive=hex_to_rgb(colors_data["status_alive"]) if "status_alive" in colors_data else "224,175,104",
-        status_closed=hex_to_rgb(colors_data["status_closed"]) if "status_closed" in colors_data else "158,206,106",
+        modal_bg=(
+            hex_to_rgb(colors_data["modal_bg"])
+            if "modal_bg" in colors_data
+            else "27,30,45"
+        ),
+        modal_border=(
+            hex_to_rgb(colors_data["modal_border"])
+            if "modal_border" in colors_data
+            else "41,46,66"
+        ),
+        text_primary=(
+            hex_to_rgb(colors_data["text_primary"])
+            if "text_primary" in colors_data
+            else "192,202,245"
+        ),
+        text_secondary=(
+            hex_to_rgb(colors_data["text_secondary"])
+            if "text_secondary" in colors_data
+            else "169,177,214"
+        ),
+        accent_danger=(
+            hex_to_rgb(colors_data["accent_danger"])
+            if "accent_danger" in colors_data
+            else "247,118,142"
+        ),
+        status_alive=(
+            hex_to_rgb(colors_data["status_alive"])
+            if "status_alive" in colors_data
+            else "224,175,104"
+        ),
+        status_closed=(
+            hex_to_rgb(colors_data["status_closed"])
+            if "status_closed" in colors_data
+            else "158,206,106"
+        ),
     )
 
     # Parse UI

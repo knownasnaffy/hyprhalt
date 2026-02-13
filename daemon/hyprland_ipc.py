@@ -37,7 +37,7 @@ def send_command(cmd: str) -> str:
                 break
             response += chunk
 
-        return response.decode(errors='replace')
+        return response.decode(errors="replace")
     finally:
         sock.close()
 

@@ -105,7 +105,9 @@ def main():
     # Load configuration
     config = load_config()
     if args.verbose:
-        print(f"Loaded config: sigterm={config.timing.sigterm_delay}s, sigkill={config.timing.sigkill_delay}s")
+        print(
+            f"Loaded config: sigterm={config.timing.sigterm_delay}s, sigkill={config.timing.sigkill_delay}s"
+        )
 
     # Create shutdown manager
     manager = ShutdownManager(
@@ -137,14 +139,14 @@ def main():
 
     last_sigterm = 0
     last_sigkill = 0
-    
+
     # Create GLib main loop for D-Bus
     main_loop = GLib.MainLoop()
-    
+
     def check_status():
         """Periodic check called by GLib timeout."""
         nonlocal last_sigterm, last_sigkill
-        
+
         # Check if UI process exited
         if manager.ui_process:
             exit_code = manager.ui_process.poll()
@@ -169,9 +171,9 @@ def main():
                         dbus_service.cleanup()
                     main_loop.quit()
                     return False
-        
+
         manager.check_windowless_pids()
-        
+
         # Update apps file for UI
         if dbus_service:
             dbus_service.update_apps_file()
@@ -191,14 +193,18 @@ def main():
         # Escalate at configured sigterm_delay
         if elapsed >= manager.config.timing.sigterm_delay and last_sigterm == 0:
             if args.verbose:
-                print(f"{manager.config.timing.sigterm_delay} seconds elapsed, escalating to SIGTERM")
+                print(
+                    f"{manager.config.timing.sigterm_delay} seconds elapsed, escalating to SIGTERM"
+                )
             manager.escalate_sigterm()
             last_sigterm = elapsed
 
         # Escalate at configured sigkill_delay
         if elapsed >= manager.config.timing.sigkill_delay and last_sigkill == 0:
             if args.verbose:
-                print(f"{manager.config.timing.sigkill_delay} seconds elapsed, escalating to SIGKILL")
+                print(
+                    f"{manager.config.timing.sigkill_delay} seconds elapsed, escalating to SIGKILL"
+                )
             manager.escalate_sigkill()
             last_sigkill = elapsed
 
@@ -209,12 +215,12 @@ def main():
                 dbus_service.cleanup()
             main_loop.quit()
             return False
-        
+
         return True  # Continue calling
-    
+
     # Schedule periodic checks every 500ms
     GLib.timeout_add(500, check_status)
-    
+
     # Run main loop
     try:
         main_loop.run()
@@ -222,7 +228,7 @@ def main():
         if args.verbose:
             print("Interrupted by user")
         manager.close_ui()
-    
+
     sys.exit(0)
 
 

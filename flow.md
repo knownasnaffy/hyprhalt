@@ -30,7 +30,7 @@ A Python-based graceful shutdown utility for Hyprland with a Quickshell UI that 
 5. **Layers are NOT closed yet** - keeps waybar, wallpapers, etc. functional
 
 ### Phase 3: UI Decision Point (3s)
-**If all windows closed**: 
+**If all windows closed**:
 - Close simple overlay
 - Close all layers (waybar, wallpapers, etc.)
 - Exit Hyprland immediately

@@ -232,8 +232,8 @@ class ShutdownManager:
             "ui": {
                 "border_radius": self.config.ui.border_radius,
                 "modal_border_radius": self.config.ui.modal_border_radius,
-            }
+            },
         }
-        
+
         with open("/tmp/hyprhalt-config.json", "w") as f:
             json.dump(config_data, f)
