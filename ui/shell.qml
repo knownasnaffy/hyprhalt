@@ -76,6 +76,7 @@ PanelWindow {
         running: true
         repeat: false
         onTriggered: {
+            console.log("!!! 3 SECOND TIMER TRIGGERED, SHOWING MODAL !!!");
             root.showModal = true;
         }
     }
@@ -309,7 +310,10 @@ PanelWindow {
                             hoverEnabled: true
                             onEntered: cancelBtn.hovered = true
                             onExited: cancelBtn.hovered = false
-                            onClicked: cancelProcess.running = true
+                            onClicked: {
+                                console.log("!!! CANCEL BUTTON CLICKED !!!");
+                                cancelProcess.running = true;
+                            }
                             cursorShape: Qt.PointingHandCursor
                         }
                     }

@@ -152,6 +152,8 @@ def main():
             dbus_service.update_apps_file()
 
         # Check for cancel
+        if args.verbose:
+            print(f"Checking cancel flag: {dbus_service.cancelled if dbus_service else 'no service'}")
         if dbus_service and dbus_service.cancelled:
             if args.verbose:
                 print("Shutdown cancelled by user")

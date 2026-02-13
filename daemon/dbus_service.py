@@ -22,14 +22,16 @@ class QuickShutdownService(dbus.service.Object):
     @dbus.service.method("org.hyprland.QuickShutdown", in_signature='', out_signature='')
     def Cancel(self):
         """Cancel shutdown and exit."""
-        print("Cancel requested via D-Bus")
+        print("!!! CANCEL REQUESTED VIA D-BUS !!!")
         self.cancelled = True
+        print(f"!!! cancelled flag set to: {self.cancelled} !!!")
     
     @dbus.service.method("org.hyprland.QuickShutdown", in_signature='', out_signature='')
     def ForceKill(self):
         """Force kill all apps immediately."""
-        print("Force kill requested via D-Bus")
+        print("!!! FORCE KILL REQUESTED VIA D-BUS !!!")
         self.force_killed = True
+        print(f"!!! force_killed flag set to: {self.force_killed} !!!")
     
     @dbus.service.method("org.hyprland.QuickShutdown", in_signature='', out_signature='s')
     def GetAppsFile(self):
