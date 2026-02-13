@@ -12,7 +12,31 @@ A graceful shutdown utility for Hyprland with Quickshell UI.
 
 ## Installation
 
+### Arch
+
 ```bash
+sudo paru -Sy hyprhalt
+```
+or
+```bash
+sudo yay -Sy hyprhalt
+```
+
+### Pipx
+
+```bash
+sudo pacman -Sy quickshell
+
+pipx install git+https://github.com/knownasnaffy/hyprhalt.git
+```
+
+### Manual
+
+```bash
+sudo pacman -Sy quickshell
+
+git clone https://github.com/knownasnaffy/hyprhalt
+cd hyprhalt
 pip install -e .
 ```
 
@@ -36,3 +60,8 @@ hyprhalt --post-cmd "systemctl poweroff"
 - Quickshell
 - dbus-python
 - PyGObject
+
+## Attribution
+
+Inspired by hyprshutdown.
+This project is a clean-room reimplementation in Python using Quickshell.
