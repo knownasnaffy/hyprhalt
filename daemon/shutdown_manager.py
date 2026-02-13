@@ -30,8 +30,7 @@ class ShutdownManager:
         self.layers = layers
         self.config = config
         self.start_time = time.time()
-        self.simple_ui_process: Optional[subprocess.Popen] = None
-        self.detailed_ui_process: Optional[subprocess.Popen] = None
+        self.ui_process: Optional[subprocess.Popen] = None
         self.dry_run = dry_run
         self.no_exit = no_exit
         self.post_cmd = post_cmd
@@ -43,13 +42,13 @@ class ShutdownManager:
         """Get elapsed time since start."""
         return time.time() - self.start_time
 
-    def show_simple_ui(self):
-        """Launch simple 'Exiting...' overlay."""
+    def show_ui(self):
+        """Launch unified shell UI."""
         self._write_config_for_ui()
-        ui_path = self._get_ui_path("simple.qml")
+        ui_path = self._get_ui_path("shell.qml")
         if ui_path:
             try:
-                self.simple_ui_process = subprocess.Popen(
+                self.ui_process = subprocess.Popen(
                     ["quickshell", "-p", str(ui_path)],
                     stdout=subprocess.DEVNULL,
                     stderr=subprocess.DEVNULL,
@@ -59,38 +58,15 @@ class ShutdownManager:
             except Exception as e:
                 print(f"Warning: Failed to start UI: {e}")
 
-    def show_detailed_ui(self):
-        """Replace simple UI with detailed UI."""
-        self.close_ui()
-
-        ui_path = self._get_ui_path("detailed.qml")
-        if ui_path:
-            try:
-                self.detailed_ui_process = subprocess.Popen(
-                    ["quickshell", "-p", str(ui_path)],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
-                )
-            except FileNotFoundError:
-                pass
-
     def close_ui(self):
-        """Kill UI processes."""
-        if self.simple_ui_process:
+        """Kill UI process."""
+        if self.ui_process:
             try:
-                self.simple_ui_process.terminate()
-                self.simple_ui_process.wait(timeout=1)
+                self.ui_process.terminate()
+                self.ui_process.wait(timeout=1)
             except subprocess.TimeoutExpired:
-                self.simple_ui_process.kill()
-            self.simple_ui_process = None
-
-        if self.detailed_ui_process:
-            try:
-                self.detailed_ui_process.terminate()
-                self.detailed_ui_process.wait(timeout=1)
-            except subprocess.TimeoutExpired:
-                self.detailed_ui_process.kill()
-            self.detailed_ui_process = None
+                self.ui_process.kill()
+            self.ui_process = None
 
     def graceful_close_windows(self):
         """Close all windows gracefully."""
@@ -157,10 +133,6 @@ class ShutdownManager:
                     self._windowless_pids_termed.add(app.pid)
                 except OSError:
                     pass
-
-    def should_show_detailed_ui(self) -> bool:
-        """Check if detailed UI should be shown."""
-        return self.elapsed() >= 3.0 and self.poll_windows()
 
     def escalate_sigterm(self):
         """Re-send SIGTERM to remaining windows."""

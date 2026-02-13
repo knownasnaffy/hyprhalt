@@ -118,51 +118,23 @@ def main():
         vt_switch=args.vt,
     )
 
-    # Show simple UI immediately
-    manager.show_simple_ui()
+    # Show UI immediately
+    manager.show_ui()
 
     # Start graceful close
     manager.graceful_close_windows()
 
-    # Poll for 3 seconds
-    while manager.elapsed() < 3.0:
-        time.sleep(0.2)
-        manager.check_windowless_pids()
-
-        if not manager.poll_windows():
-            # All windows closed before 3s
-            if args.verbose:
-                print("All windows closed within 3 seconds")
-            manager.finish_shutdown()
-            sys.exit(0)
-
-    # Check if we need detailed UI
-    if not manager.poll_windows():
-        # All closed right at 3s mark
-        if args.verbose:
-            print("All windows closed at 3 second mark")
-        manager.finish_shutdown()
-        sys.exit(0)
-
-    # Show detailed UI
-    # Show detailed UI
-    if args.verbose:
-        print(f"{len(manager.windows)} windows remain, showing detailed UI")
-    
     # Start D-Bus service
     try:
         dbus_service = start_service(manager)
         if args.verbose:
             print("D-Bus service started")
-        # Write initial apps file before showing UI
+        # Write initial apps file
         dbus_service.update_apps_file()
     except Exception as e:
         print(f"Warning: Failed to start D-Bus service: {e}")
         dbus_service = None
-    
-    manager.show_detailed_ui()
 
-    # Continue polling with escalation
     last_sigterm = 0
     last_sigkill = 0
     
