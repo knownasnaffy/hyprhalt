@@ -1,5 +1,6 @@
 """Configuration management for hyprhalt."""
 
+import os
 from pathlib import Path
 from typing import NamedTuple
 
@@ -45,11 +46,28 @@ def hex_to_rgb(hex_color: str) -> str:
 
 
 def load_config() -> Config:
-    """Load configuration from ~/.config/hyprhalt/config.toml."""
-    config_dir = Path.home() / ".config" / "hyprhalt"
-    config_file = config_dir / "config.toml"
-
-    if not config_file.exists():
+    """Load configuration from XDG config directories."""
+    # Build search paths in priority order
+    search_paths = []
+    
+    # 1. XDG_CONFIG_HOME (or ~/.config fallback)
+    xdg_config_home = os.getenv("XDG_CONFIG_HOME", str(Path.home() / ".config"))
+    search_paths.append(Path(xdg_config_home) / "hyprhalt" / "config.toml")
+    
+    # 2. XDG_CONFIG_DIRS (colon-separated, defaults to /etc/xdg)
+    xdg_config_dirs = os.getenv("XDG_CONFIG_DIRS", "/etc/xdg")
+    for config_dir in xdg_config_dirs.split(":"):
+        if config_dir:
+            search_paths.append(Path(config_dir) / "hyprhalt" / "config.toml")
+    
+    # Find first existing config file
+    config_file = None
+    for path in search_paths:
+        if path.exists():
+            config_file = path
+            break
+    
+    if not config_file:
         return Config()
 
     with open(config_file, "rb") as f:
@@ -119,8 +137,9 @@ def load_config() -> Config:
 
 
 def create_default_config():
-    """Create default config file at ~/.config/hyprhalt/config.toml."""
-    config_dir = Path.home() / ".config" / "hyprhalt"
+    """Create default config file at $XDG_CONFIG_HOME/hyprhalt/config.toml."""
+    xdg_config_home = os.getenv("XDG_CONFIG_HOME", str(Path.home() / ".config"))
+    config_dir = Path(xdg_config_home) / "hyprhalt"
     config_file = config_dir / "config.toml"
 
     config_dir.mkdir(parents=True, exist_ok=True)
