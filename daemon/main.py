@@ -118,6 +118,7 @@ def main():
         no_exit=args.no_exit,
         post_cmd=args.post_cmd,
         vt_switch=args.vt,
+        verbose=args.verbose,
     )
 
     # Show UI immediately
@@ -128,7 +129,7 @@ def main():
 
     # Start D-Bus service
     try:
-        dbus_service = start_service(manager)
+        dbus_service = start_service(manager, args.verbose)
         if args.verbose:
             print("D-Bus service started")
         # Write initial apps file

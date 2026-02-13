@@ -25,6 +25,7 @@ class ShutdownManager:
         no_exit: bool = False,
         post_cmd: Optional[str] = None,
         vt_switch: Optional[int] = None,
+        verbose: bool = False,
     ):
         self.windows = windows
         self.layers = layers
@@ -35,6 +36,7 @@ class ShutdownManager:
         self.no_exit = no_exit
         self.post_cmd = post_cmd
         self.vt_switch = vt_switch
+        self.verbose = verbose
         self.own_pid = os.getpid()
         self._windowless_pids_termed: set[int] = set()
 
@@ -127,9 +129,10 @@ class ShutdownManager:
 
             # If app's window closed but PID is still alive, SIGTERM it
             if app.pid not in window_pids and app.is_alive():
-                print(
-                    f"Window closed but PID {app.pid} ({app.class_name}) alive, sending SIGTERM"
-                )
+                if self.verbose:
+                    print(
+                        f"Window closed but PID {app.pid} ({app.class_name}) alive, sending SIGTERM"
+                    )
                 try:
                     os.kill(app.pid, 15)  # SIGTERM
                     self._windowless_pids_termed.add(app.pid)

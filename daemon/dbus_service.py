@@ -10,8 +10,9 @@ from dbus.mainloop.glib import DBusGMainLoop
 class HyprHaltService(dbus.service.Object):
     """D-Bus service for hyprhalt UI."""
 
-    def __init__(self, manager):
+    def __init__(self, manager, verbose: bool = False):
         self.manager = manager
+        self.verbose = verbose
         self.bus = dbus.SessionBus()
         bus_name = dbus.service.BusName("org.hyprland.HyprHalt", self.bus)
         super().__init__(bus_name, "/org/hyprland/HyprHalt")
@@ -53,7 +54,8 @@ class HyprHaltService(dbus.service.Object):
         try:
             with open(self.apps_file, "w") as f:
                 json.dump(apps, f)
-            print(f"Updated apps file with {len(apps)} apps")
+            if self.verbose:
+                print(f"Updated apps file with {len(apps)} apps")
         except Exception as e:
             print(f"Failed to write apps file: {e}")
 
@@ -66,7 +68,7 @@ class HyprHaltService(dbus.service.Object):
             pass
 
 
-def start_service(manager):
+def start_service(manager, verbose: bool = False):
     """Initialize D-Bus service and return the service object."""
     DBusGMainLoop(set_as_default=True)
-    return HyprHaltService(manager)
+    return HyprHaltService(manager, verbose)
