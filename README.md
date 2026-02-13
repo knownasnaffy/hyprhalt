@@ -51,6 +51,9 @@ hyprhalt --dry-run
 
 # With post-shutdown command
 hyprhalt --post-cmd "systemctl poweroff"
+
+# Explore
+hyprhalt --help
 ```
 
 ## Requirements
