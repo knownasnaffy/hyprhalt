@@ -145,35 +145,36 @@ def main():
         """Periodic check called by GLib timeout."""
         nonlocal last_sigterm, last_sigkill
         
+        # Check if UI process exited
+        if manager.ui_process:
+            exit_code = manager.ui_process.poll()
+            if exit_code is not None:
+                if exit_code == 2:
+                    # Cancel button clicked
+                    if args.verbose:
+                        print("UI exited with code 2 - Cancel requested")
+                    manager.close_ui()
+                    if dbus_service:
+                        dbus_service.cleanup()
+                    main_loop.quit()
+                    return False
+                elif exit_code == 3:
+                    # Force kill button clicked
+                    if args.verbose:
+                        print("UI exited with code 3 - Force kill requested")
+                    manager.escalate_sigkill()
+                    time.sleep(1)
+                    manager.finish_shutdown()
+                    if dbus_service:
+                        dbus_service.cleanup()
+                    main_loop.quit()
+                    return False
+        
         manager.check_windowless_pids()
         
         # Update apps file for UI
         if dbus_service:
             dbus_service.update_apps_file()
-
-        # Check for cancel
-        if args.verbose:
-            print(f"Checking cancel flag: {dbus_service.cancelled if dbus_service else 'no service'}")
-        if dbus_service and dbus_service.cancelled:
-            if args.verbose:
-                print("Shutdown cancelled by user")
-            manager.close_ui()
-            if dbus_service:
-                dbus_service.cleanup()
-            main_loop.quit()
-            return False
-
-        # Check for force kill
-        if dbus_service and dbus_service.force_killed:
-            if args.verbose:
-                print("Force kill requested by user")
-            manager.escalate_sigkill()
-            time.sleep(1)
-            manager.finish_shutdown()
-            if dbus_service:
-                dbus_service.cleanup()
-            main_loop.quit()
-            return False
 
         if not manager.poll_windows():
             # All windows closed

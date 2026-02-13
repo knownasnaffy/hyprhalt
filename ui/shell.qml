@@ -331,8 +331,8 @@ PanelWindow {
                             onEntered: cancelBtn.hovered = true
                             onExited: cancelBtn.hovered = false
                             onClicked: {
-                                console.log("!!! CANCEL BUTTON CLICKED !!!");
-                                cancelProcess.running = true;
+                                console.log("!!! CANCEL BUTTON CLICKED - EXITING WITH CODE 2 !!!");
+                                Qt.exit(2);
                             }
                             cursorShape: Qt.PointingHandCursor
                         }
@@ -369,7 +369,10 @@ PanelWindow {
                             hoverEnabled: true
                             onEntered: forceBtn.hovered = true
                             onExited: forceBtn.hovered = false
-                            onClicked: forceKillProcess.running = true
+                            onClicked: {
+                                console.log("!!! FORCE KILL BUTTON CLICKED - EXITING WITH CODE 3 !!!");
+                                Qt.exit(3);
+                            }
                             cursorShape: Qt.PointingHandCursor
                         }
                     }
