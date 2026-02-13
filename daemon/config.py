@@ -1,4 +1,4 @@
-"""Configuration management for quickshutdown."""
+"""Configuration management for hyprhalt."""
 
 from pathlib import Path
 from typing import NamedTuple
@@ -45,8 +45,8 @@ def hex_to_rgb(hex_color: str) -> str:
 
 
 def load_config() -> Config:
-    """Load configuration from ~/.config/quickshutdown/config.toml."""
-    config_dir = Path.home() / ".config" / "quickshutdown"
+    """Load configuration from ~/.config/hyprhalt/config.toml."""
+    config_dir = Path.home() / ".config" / "hyprhalt"
     config_file = config_dir / "config.toml"
 
     if not config_file.exists():
@@ -87,13 +87,13 @@ def load_config() -> Config:
 
 
 def create_default_config():
-    """Create default config file at ~/.config/quickshutdown/config.toml."""
-    config_dir = Path.home() / ".config" / "quickshutdown"
+    """Create default config file at ~/.config/hyprhalt/config.toml."""
+    config_dir = Path.home() / ".config" / "hyprhalt"
     config_file = config_dir / "config.toml"
 
     config_dir.mkdir(parents=True, exist_ok=True)
 
-    default_config = """# Quickshutdown Configuration
+    default_config = """# Hyprhalt Configuration
 
 [timing]
 sigterm_delay = 8

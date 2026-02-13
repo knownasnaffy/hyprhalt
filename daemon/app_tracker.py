@@ -160,5 +160,5 @@ def get_hyprland_children(parent_pid: int) -> list[App]:
 
 
 def filter_own_process(apps: list[App], own_pid: int) -> list[App]:
-    """Remove quickshutdown daemon from app list."""
+    """Remove hyprhalt daemon from app list."""
     return [app for app in apps if app.pid != own_pid]

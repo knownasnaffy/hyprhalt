@@ -205,8 +205,8 @@ class ShutdownManager:
         """Find UI file in installation directories."""
         search_paths = [
             Path(__file__).parent.parent / "ui" / filename,  # Development
-            Path.home() / ".local/share/quickshutdown/ui" / filename,  # User install
-            Path("/usr/share/quickshutdown/ui") / filename,  # System install
+            Path.home() / ".local/share/hyprhalt/ui" / filename,  # User install
+            Path("/usr/share/hyprhalt/ui") / filename,  # System install
         ]
 
         for path in search_paths:
@@ -235,5 +235,5 @@ class ShutdownManager:
             }
         }
         
-        with open("/tmp/quickshutdown-config.json", "w") as f:
+        with open("/tmp/hyprhalt-config.json", "w") as f:
             json.dump(config_data, f)

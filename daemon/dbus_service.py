@@ -7,33 +7,33 @@ import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
 
 
-class QuickShutdownService(dbus.service.Object):
-    """D-Bus service for quickshutdown UI."""
+class HyprHaltService(dbus.service.Object):
+    """D-Bus service for hyprhalt UI."""
     
     def __init__(self, manager):
         self.manager = manager
         self.bus = dbus.SessionBus()
-        bus_name = dbus.service.BusName("org.hyprland.QuickShutdown", self.bus)
-        super().__init__(bus_name, "/org/hyprland/QuickShutdown")
+        bus_name = dbus.service.BusName("org.hyprland.HyprHalt", self.bus)
+        super().__init__(bus_name, "/org/hyprland/HyprHalt")
         self.cancelled = False
         self.force_killed = False
-        self.apps_file = "/tmp/quickshutdown-apps.json"
+        self.apps_file = "/tmp/hyprhalt-apps.json"
     
-    @dbus.service.method("org.hyprland.QuickShutdown", in_signature='', out_signature='')
+    @dbus.service.method("org.hyprland.HyprHalt", in_signature='', out_signature='')
     def Cancel(self):
         """Cancel shutdown and exit."""
         print("!!! CANCEL REQUESTED VIA D-BUS !!!")
         self.cancelled = True
         print(f"!!! cancelled flag set to: {self.cancelled} !!!")
     
-    @dbus.service.method("org.hyprland.QuickShutdown", in_signature='', out_signature='')
+    @dbus.service.method("org.hyprland.HyprHalt", in_signature='', out_signature='')
     def ForceKill(self):
         """Force kill all apps immediately."""
         print("!!! FORCE KILL REQUESTED VIA D-BUS !!!")
         self.force_killed = True
         print(f"!!! force_killed flag set to: {self.force_killed} !!!")
     
-    @dbus.service.method("org.hyprland.QuickShutdown", in_signature='', out_signature='s')
+    @dbus.service.method("org.hyprland.HyprHalt", in_signature='', out_signature='s')
     def GetAppsFile(self):
         """Get path to apps JSON file."""
         return self.apps_file
@@ -67,4 +67,4 @@ class QuickShutdownService(dbus.service.Object):
 def start_service(manager):
     """Initialize D-Bus service and return the service object."""
     DBusGMainLoop(set_as_default=True)
-    return QuickShutdownService(manager)
+    return HyprHaltService(manager)

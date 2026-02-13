@@ -43,16 +43,16 @@ Tested and working:
 pip install -e .
 
 # Test (safe, won't close anything)
-quickshutdown --dry-run --verbose --no-fork
+hyprhalt --dry-run --verbose --no-fork
 
 # Real usage
-quickshutdown
+hyprhalt
 
 # With post-shutdown command
-quickshutdown --post-cmd "systemctl poweroff"
+hyprhalt --post-cmd "systemctl poweroff"
 
 # NVIDIA+SDDM fix
-quickshutdown --vt 1
+hyprhalt --vt 1
 ```
 
 ## Features

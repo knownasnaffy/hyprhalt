@@ -29,7 +29,7 @@ PanelWindow {
     // Read config from JSON file
     Process {
         id: readConfigProcess
-        command: ["cat", "/tmp/quickshutdown-config.json"]
+        command: ["cat", "/tmp/hyprhalt-config.json"]
         running: true
 
         stdout: SplitParser {
@@ -47,7 +47,7 @@ PanelWindow {
     Process {
         id: readAppsProcess
 
-        command: ["cat", "/tmp/quickshutdown-apps.json"]
+        command: ["cat", "/tmp/hyprhalt-apps.json"]
         running: true
 
         stdout: SplitParser {
@@ -84,7 +84,7 @@ PanelWindow {
     // D-Bus connection for cancel
     Process {
         id: cancelProcess
-        command: ["dbus-send", "--session", "--type=method_call", "--dest=org.hyprland.QuickShutdown", "/org/hyprland/QuickShutdown", "org.hyprland.QuickShutdown.Cancel"]
+        command: ["dbus-send", "--session", "--type=method_call", "--dest=org.hyprland.HyprHalt", "/org/hyprland/HyprHalt", "org.hyprland.HyprHalt.Cancel"]
         
         stdout: SplitParser {
             onRead: function(data) {
@@ -99,7 +99,7 @@ PanelWindow {
 
     Process {
         id: forceKillProcess
-        command: ["dbus-send", "--session", "--type=method_call", "--dest=org.hyprland.QuickShutdown", "/org/hyprland/QuickShutdown", "org.hyprland.QuickShutdown.ForceKill"]
+        command: ["dbus-send", "--session", "--type=method_call", "--dest=org.hyprland.HyprHalt", "/org/hyprland/HyprHalt", "org.hyprland.HyprHalt.ForceKill"]
         
         stdout: SplitParser {
             onRead: function(data) {

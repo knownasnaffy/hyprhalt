@@ -1,5 +1,5 @@
 [project]
-name = "quickshutdown"
+name = "hyprhalt"
 version = "0.1.0"
 description = "Graceful shutdown utility for Hyprland with Quickshell UI"
 requires-python = ">=3.11"
@@ -10,7 +10,7 @@ dependencies = [
 ]
 
 [project.scripts]
-quickshutdown = "daemon.main:main"
+hyprhalt = "daemon.main:main"
 
 [build-system]
 requires = ["setuptools>=61.0"]

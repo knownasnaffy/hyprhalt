@@ -1,4 +1,4 @@
-# Quickshutdown
+# Hyprhalt
 
 A graceful shutdown utility for Hyprland with Quickshell UI.
 
@@ -20,13 +20,13 @@ pip install -e .
 
 ```bash
 # Basic usage
-quickshutdown
+hyprhalt
 
 # Dry run (testing)
-quickshutdown --dry-run
+hyprhalt --dry-run
 
 # With post-shutdown command
-quickshutdown --post-cmd "systemctl poweroff"
+hyprhalt --post-cmd "systemctl poweroff"
 ```
 
 ## Requirements

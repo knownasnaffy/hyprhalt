@@ -1,1 +1,1 @@
-"""Quickshutdown daemon package."""
+"""Hyprhalt daemon package."""

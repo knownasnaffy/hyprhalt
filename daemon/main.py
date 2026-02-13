@@ -1,4 +1,4 @@
-"""Main entry point for quickshutdown."""
+"""Main entry point for hyprhalt."""
 
 import argparse
 import os

@@ -1,4 +1,4 @@
-# Quickshutdown Flow
+# Hyprhalt Flow
 
 ## Overview
 A Python-based graceful shutdown utility for Hyprland with a Quickshell UI that only appears if processes take >3 seconds to close.
@@ -6,7 +6,7 @@ A Python-based graceful shutdown utility for Hyprland with a Quickshell UI that 
 ## Execution Flow
 
 ### Phase 1: Initialization (0s)
-1. User runs `quickshutdown` command
+1. User runs `hyprhalt` command
 2. Daemon forks/daemonizes to survive parent death
 3. **Immediately show simple "Exiting..." overlay** (minimal UI)
 4. Query Hyprland IPC for all apps:
@@ -14,7 +14,7 @@ A Python-based graceful shutdown utility for Hyprland with a Quickshell UI that 
    - Layer shells via `j/layers` (stored separately, not closed yet)
    - Direct children of Hyprland process
 5. Store app list with metadata (address, PID, class, namespace)
-6. Identify quickshutdown's own PID to exclude from closure
+6. Identify hyprhalt's own PID to exclude from closure
 7. Start 3-second timer
 
 ### Phase 2: Graceful Shutdown (0-3s)
@@ -60,7 +60,7 @@ A Python-based graceful shutdown utility for Hyprland with a Quickshell UI that 
    - Send SIGTERM again to all remaining windows
 2. At 15 seconds total elapsed time:
    - Send SIGKILL to all remaining windows
-   - Close all layers (waybar, wallpapers, quickshutdown UI)
+   - Close all layers (waybar, wallpapers, hyprhalt UI)
    - Exit Hyprland
    - Run post-exit command
 
@@ -109,8 +109,8 @@ START → SHOW_SIMPLE_UI → GRACEFUL_CLOSE_WINDOWS → [3s check]
 
 ## D-Bus Interface
 
-**Service**: `org.hyprland.QuickShutdown`
-**Object Path**: `/org/hyprland/QuickShutdown`
+**Service**: `org.hyprland.HyprHalt`
+**Object Path**: `/org/hyprland/HyprHalt`
 
 **Methods**:
 - `Cancel()` - Abort shutdown

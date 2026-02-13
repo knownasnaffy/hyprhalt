@@ -1,9 +1,9 @@
-# Quickshutdown Specifications
+# Hyprhalt Specifications
 
 ## Project Structure
 
 ```
-quickshutdown/
+hyprhalt/
 ├── flow.md                    # This flow document
 ├── specs.md                   # This file
 ├── daemon/
@@ -74,7 +74,7 @@ class App:
 **Functions**:
 - `get_all_apps() -> tuple[list[App], list[App]]` - Returns (windows, layers) separately
 - `get_hyprland_children(parent_pid: int) -> list[App]` - Parse /proc for children
-- `filter_own_process(apps: list[App], own_pid: int) -> list[App]` - Remove quickshutdown daemon
+- `filter_own_process(apps: list[App], own_pid: int) -> list[App]` - Remove hyprhalt daemon
 
 **Dependencies**: `os`, `signal`, `pathlib`
 
@@ -121,8 +121,8 @@ class ShutdownManager:
 
 **Classes**:
 ```python
-class QuickShutdownService:
-    # D-Bus interface: org.hyprland.QuickShutdown
+class HyprHaltService:
+    # D-Bus interface: org.hyprland.HyprHalt
     
     @dbus.service.method("Cancel")
     def cancel()
@@ -158,7 +158,7 @@ class QuickShutdownService:
 ```qml
 // Launched via: quickshell -c /path/to/simple.qml
 LayerShellWindow {
-    namespace: "quickshutdown-simple"
+    namespace: "hyprhalt-simple"
     layer: Layer.Overlay
     anchors.centerIn: parent
     
@@ -187,7 +187,7 @@ LayerShellWindow {
 ```qml
 // Launched via: quickshell -c /path/to/detailed.qml
 LayerShellWindow {
-    namespace: "quickshutdown-detailed"
+    namespace: "hyprhalt-detailed"
     layer: Layer.Overlay
     anchors: fill
     
@@ -218,8 +218,8 @@ LayerShellWindow {
 
 DBusService {
     id: shutdownService
-    service: "org.hyprland.QuickShutdown"
-    path: "/org/hyprland/QuickShutdown"
+    service: "org.hyprland.HyprHalt"
+    path: "/org/hyprland/HyprHalt"
     
     property var apps: []
     signal appsUpdated()
@@ -239,7 +239,7 @@ DBusService {
 
 ```toml
 [project]
-name = "quickshutdown"
+name = "hyprhalt"
 version = "0.1.0"
 dependencies = [
     "dbus-python>=1.3.2",
@@ -247,7 +247,7 @@ dependencies = [
 ]
 
 [project.scripts]
-quickshutdown = "daemon.main:main"
+hyprhalt = "daemon.main:main"
 ```
 
 ---
@@ -256,7 +256,7 @@ quickshutdown = "daemon.main:main"
 
 **Simple overlay (0-3s)**:
 ```bash
-quickshell --path /path/to/quickshutdown/ui/simple.qml
+quickshell --path /path/to/hyprhalt/ui/simple.qml
 ```
 
 **Detailed UI (3s+)**:
@@ -265,12 +265,12 @@ quickshell --path /path/to/quickshutdown/ui/simple.qml
 kill $SIMPLE_UI_PID
 
 # Launch detailed UI
-quickshell --path /path/to/quickshutdown/ui/detailed.qml
+quickshell --path /path/to/hyprhalt/ui/detailed.qml
 ```
 
 **Installation path**: UI files will be installed to:
-- System: `/usr/share/quickshutdown/ui/`
-- User: `~/.local/share/quickshutdown/ui/`
+- System: `/usr/share/hyprhalt/ui/`
+- User: `~/.local/share/hyprhalt/ui/`
 
 The daemon will detect the installation location and use absolute paths.
 
@@ -317,7 +317,7 @@ The daemon will detect the installation location and use absolute paths.
 ## Installation
 
 ```bash
-cd quickshutdown
+cd hyprhalt
 pip install -e .
 ```
 
@@ -325,14 +325,14 @@ pip install -e .
 
 ```bash
 # Basic usage
-quickshutdown
+hyprhalt
 
 # Dry run (testing)
-quickshutdown --dry-run
+hyprhalt --dry-run
 
 # With post-shutdown command
-quickshutdown --post-cmd "systemctl poweroff"
+hyprhalt --post-cmd "systemctl poweroff"
 
 # NVIDIA+SDDM fix
-quickshutdown --vt 1 --post-cmd "systemctl poweroff"
+hyprhalt --vt 1 --post-cmd "systemctl poweroff"
 ```
