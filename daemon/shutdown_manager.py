@@ -48,10 +48,12 @@ class ShutdownManager:
         ui_path = self._get_ui_path("shell.qml")
         if ui_path:
             try:
+                # Temporarily log to file for debugging
+                ui_log = open("/tmp/quickshell-ui.log", "w")
                 self.ui_process = subprocess.Popen(
                     ["quickshell", "-p", str(ui_path)],
-                    stdout=subprocess.DEVNULL,
-                    stderr=subprocess.DEVNULL,
+                    stdout=ui_log,
+                    stderr=ui_log,
                 )
             except FileNotFoundError:
                 print("Warning: quickshell not found, running without UI")
