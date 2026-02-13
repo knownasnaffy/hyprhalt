@@ -85,11 +85,31 @@ PanelWindow {
     Process {
         id: cancelProcess
         command: ["dbus-send", "--session", "--type=method_call", "--dest=org.hyprland.QuickShutdown", "/org/hyprland/QuickShutdown", "org.hyprland.QuickShutdown.Cancel"]
+        
+        stdout: SplitParser {
+            onRead: function(data) {
+                console.log("Cancel D-Bus response:", data);
+            }
+        }
+        
+        onExited: function(exitCode) {
+            console.log("Cancel D-Bus exited with code:", exitCode);
+        }
     }
 
     Process {
         id: forceKillProcess
         command: ["dbus-send", "--session", "--type=method_call", "--dest=org.hyprland.QuickShutdown", "/org/hyprland/QuickShutdown", "org.hyprland.QuickShutdown.ForceKill"]
+        
+        stdout: SplitParser {
+            onRead: function(data) {
+                console.log("ForceKill D-Bus response:", data);
+            }
+        }
+        
+        onExited: function(exitCode) {
+            console.log("ForceKill D-Bus exited with code:", exitCode);
+        }
     }
 
     // Backdrop
