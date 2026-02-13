@@ -12,14 +12,10 @@ A graceful shutdown utility for Hyprland with Quickshell UI.
 
 ## Installation
 
-### Arch
+### Arch (AUR)
 
 ```bash
 sudo paru -Sy hyprhalt
-```
-or
-```bash
-sudo yay -Sy hyprhalt
 ```
 
 ### Pipx
