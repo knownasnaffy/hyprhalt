@@ -1,6 +1,6 @@
 [project]
 name = "hyprhalt"
-version = "0.1.1"
+version = "0.1.2"
 description = "Graceful shutdown utility for Hyprland with Quickshell UI"
 requires-python = ">=3.11"
 dependencies = [
@@ -21,7 +21,7 @@ include = ["daemon*"]
 exclude = ["ui*"]
 
 [tool.bumpversion]
-current_version = "0.1.1"
+current_version = "0.1.2"
 commit = true
 tag = true
 message = "Bump version: {current_version} → {new_version}"
