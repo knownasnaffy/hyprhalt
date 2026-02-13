@@ -1,0 +1,7 @@
+#!/usr/bin/python3
+import sys
+from daemon.main import main
+
+sys.path.insert(0, "/usr/share/hyprhalt")
+
+main()
