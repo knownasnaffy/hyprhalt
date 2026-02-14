@@ -2,6 +2,10 @@
 
 A graceful shutdown utility for Hyprland with Quickshell UI.
 
+## Demo
+
+https://github.com/user-attachments/assets/e29ec0a5-8fac-4742-98ae-a93f40ee3996
+
 ## Features
 
 - Graceful window closure via Hyprland IPC
