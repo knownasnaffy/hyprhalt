@@ -16,7 +16,7 @@ PanelWindow {
     aboveWindows: true
     focusable: true
     exclusionMode: ExclusionMode.Ignore
-    WlrLayershell.namespace: "hyprland-quit"
+    WlrLayershell.namespace: "hyprhalt"
     color: "transparent"
 
     anchors {
