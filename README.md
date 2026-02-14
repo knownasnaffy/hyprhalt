@@ -27,7 +27,7 @@ https://github.com/user-attachments/assets/e29ec0a5-8fac-4742-98ae-a93f40ee3996
 ### Arch (AUR)
 
 ```bash
-sudo paru -Sy hyprhalt
+paru -Sy hyprhalt
 ```
 
 ### Pipx
