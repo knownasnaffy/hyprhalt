@@ -99,3 +99,10 @@ User configs override system configs. If no config exists, defaults are used.
 
 Inspired by hyprshutdown.
 This project is a clean-room reimplementation in Python using Quickshell.
+
+## Todo
+
+Todo, todo, todo todo todo todo todoooooooo, tododoo
+
+- I'm thinking of showing a countdown inside the force close button along with a decreasing border length as an indicator.
+- Better animations
