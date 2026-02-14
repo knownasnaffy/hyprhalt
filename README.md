@@ -48,6 +48,20 @@ cd hyprhalt
 pip install -e .
 ```
 
+### Enable blur in Hyprland
+
+In your hyprland config, add the following window rule:
+
+```hyprlang
+layerrule {
+	name = hyprhalt
+	match:namespace = hyprhalt
+
+	blur = on
+	ignore_alpha = 0
+}
+```
+
 ## Usage
 
 ```bash
