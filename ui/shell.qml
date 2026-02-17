@@ -128,7 +128,7 @@ PanelWindow {
             property int dots: 1
             property int maxDots: 3
 
-            text: "Exiting" + ".".repeat(dots)
+            text: (root.config.text?.exiting || "Exiting") + ".".repeat(dots)
             color: {
                 var rgb = (root.config.colors?.text_secondary || "169,177,214").split(",");
                 return Qt.rgba(rgb[0]/255, rgb[1]/255, rgb[2]/255, 1);

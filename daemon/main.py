@@ -70,6 +70,12 @@ def parse_args():
         action="store_true",
         help="Enable verbose logging",
     )
+    parser.add_argument(
+        "--text",
+        type=str,
+        default="Exiting",
+        help="Custom text to display in UI (default: Exiting)",
+    )
 
     return parser.parse_args()
 
@@ -119,6 +125,7 @@ def main():
         post_cmd=args.post_cmd,
         vt_switch=args.vt,
         verbose=args.verbose,
+        custom_text=args.text,
     )
 
     # Show UI immediately

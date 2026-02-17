@@ -26,6 +26,7 @@ class ShutdownManager:
         post_cmd: Optional[str] = None,
         vt_switch: Optional[int] = None,
         verbose: bool = False,
+        custom_text: str = "Exiting",
     ):
         self.windows = windows
         self.layers = layers
@@ -39,6 +40,7 @@ class ShutdownManager:
         self.verbose = verbose
         self.own_pid = os.getpid()
         self._windowless_pids_termed: set[int] = set()
+        self.custom_text = custom_text
 
     def elapsed(self) -> float:
         """Get elapsed time since start."""
@@ -235,6 +237,9 @@ class ShutdownManager:
             "ui": {
                 "border_radius": self.config.ui.border_radius,
                 "modal_border_radius": self.config.ui.modal_border_radius,
+            },
+            "text": {
+                "exiting": self.custom_text,
             },
         }
 
