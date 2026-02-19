@@ -18,7 +18,8 @@ class HyprHaltService(dbus.service.Object):
         super().__init__(bus_name, "/org/hyprland/HyprHalt")
         self.cancelled = False
         self.force_killed = False
-        self.apps_file = "/tmp/hyprhalt-apps.json"
+        runtime_dir = os.getenv("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}")
+        self.apps_file = f"{runtime_dir}/hyprhalt-apps.json"
 
     @dbus.service.method("org.hyprland.HyprHalt", in_signature="", out_signature="")
     def Cancel(self):

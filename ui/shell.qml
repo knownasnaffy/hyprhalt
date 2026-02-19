@@ -29,7 +29,7 @@ PanelWindow {
     // Read config from JSON file
     Process {
         id: readConfigProcess
-        command: ["cat", "/tmp/hyprhalt-config.json"]
+        command: ["sh", "-c", "cat \"${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hyprhalt-config.json\""]
         running: true
 
         stdout: SplitParser {
@@ -47,7 +47,7 @@ PanelWindow {
     Process {
         id: readAppsProcess
 
-        command: ["cat", "/tmp/hyprhalt-apps.json"]
+        command: ["sh", "-c", "cat \"${XDG_RUNTIME_DIR:-/run/user/$(id -u)}/hyprhalt-apps.json\""]
         running: true
 
         stdout: SplitParser {

@@ -52,8 +52,8 @@ class ShutdownManager:
         ui_path = self._get_ui_path("shell.qml")
         if ui_path:
             try:
-                # Temporarily log to file for debugging
-                ui_log = open("/tmp/quickshell-ui.log", "w")
+                runtime_dir = os.getenv("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}")
+                ui_log = open(f"{runtime_dir}/hyprhalt-ui.log", "w")
                 self.ui_process = subprocess.Popen(
                     ["quickshell", "-p", str(ui_path)],
                     stdout=ui_log,
@@ -243,5 +243,7 @@ class ShutdownManager:
             },
         }
 
-        with open("/tmp/hyprhalt-config.json", "w") as f:
+        runtime_dir = os.getenv("XDG_RUNTIME_DIR", f"/run/user/{os.getuid()}")
+        config_path = f"{runtime_dir}/hyprhalt-config.json"
+        with open(config_path, "w") as f:
             json.dump(config_data, f)
