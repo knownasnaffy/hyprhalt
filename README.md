@@ -6,6 +6,8 @@ A graceful shutdown utility for Hyprland with Quickshell UI.
 
 https://github.com/user-attachments/assets/e29ec0a5-8fac-4742-98ae-a93f40ee3996
 
+I use it in my [personal dotfiles](https://github.com/knownasnaffy/dotfiles). Post-cmd [works with rofi](https://github.com/knownasnaffy/dotfiles/blob/cd0c2deb73654d01c2dbcf92c84b8d48bd6f0444/.config/rofi/powermenu/type-1/powermenu.sh#L61-L65) out of the box, unlike hyprshutdown, I don't know why. But it doesn't work from a quickshell process, I still don't know why, so I had to use `hyprctl dispatch exec hyprhalt --post-cmd 'systemctl poweroff'` in that.
+
 ## Features
 
 - Graceful window closure via Hyprland IPC
