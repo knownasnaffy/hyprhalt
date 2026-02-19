@@ -13,6 +13,20 @@ Thanks for your interest in contributing to hyprhalt!
 
 This project requires a live Hyprland session to test properly. There are no automated tests - please verify your changes work as expected before submitting.
 
+## Documentation
+
+The project uses man pages as the primary documentation source. When modifying documentation:
+
+1. **Only edit** `docs/hyprhalt.1` (the man page source file)
+2. After modifying the man page, regenerate the markdown version:
+   ```bash
+   cd docs
+   pandoc -s -f man -t markdown hyprhalt.1 -o hyprhalt.1.md
+   ```
+3. **Do not edit** `docs/hyprhalt.1.md` directly - it will be overwritten when regenerated from the man page
+
+The markdown file is provided for easy viewing on GitHub, but the man page is the authoritative source.
+
 ## License
 
 By contributing to this project, you agree to release your contributions into the public domain under the Unlicense. This means you waive all copyright and related rights to your contributed code.
