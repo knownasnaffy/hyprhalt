@@ -6,6 +6,7 @@ import os
 import signal
 import sys
 import time
+from pathlib import Path
 from gi.repository import GLib
 
 from .app_tracker import get_all_apps, filter_own_process
@@ -14,6 +15,31 @@ from .dbus_service import start_service
 from .config import load_config
 
 logger = logging.getLogger("hyprhalt")
+
+
+def get_version() -> str:
+    """Get version from pyproject.toml."""
+    try:
+        import tomllib
+    except ImportError:
+        import tomli as tomllib
+    
+    # Try to find pyproject.toml
+    search_paths = [
+        Path(__file__).parent.parent / "pyproject.toml",  # Development
+        Path("/usr/share/hyprhalt/pyproject.toml"),  # System install
+    ]
+    
+    for path in search_paths:
+        if path.exists():
+            try:
+                with open(path, "rb") as f:
+                    data = tomllib.load(f)
+                    return data.get("project", {}).get("version", "unknown")
+            except Exception:
+                pass
+    
+    return "unknown"
 
 
 def daemonize():
@@ -42,6 +68,16 @@ def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(
         description="Graceful shutdown utility for Hyprland"
+    )
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help="Show version and exit",
+    )
+    parser.add_argument(
+        "--config-check",
+        action="store_true",
+        help="Validate config file and exit",
     )
     parser.add_argument(
         "--dry-run",
@@ -87,6 +123,11 @@ def main():
     """Main entry point."""
     args = parse_args()
 
+    # Handle --version
+    if args.version:
+        print(f"hyprhalt {get_version()}")
+        sys.exit(0)
+
     # Setup logging
     log_level = logging.DEBUG if args.verbose else logging.INFO
     logging.basicConfig(
@@ -94,6 +135,21 @@ def main():
         format="%(levelname)s: %(message)s",
         stream=sys.stderr,
     )
+
+    # Handle --config-check
+    if args.config_check:
+        try:
+            config = load_config()
+            logger.info("Configuration is valid")
+            logger.info(f"  sigterm_delay: {config.timing.sigterm_delay}s")
+            logger.info(f"  sigkill_delay: {config.timing.sigkill_delay}s")
+            logger.info(f"  backdrop_opacity: {config.colors.backdrop_opacity}")
+            logger.info(f"  border_radius: {config.ui.border_radius}")
+            logger.info(f"  modal_border_radius: {config.ui.modal_border_radius}")
+            sys.exit(0)
+        except Exception as e:
+            logger.error(f"Configuration validation failed: {e}")
+            sys.exit(1)
 
     # Check we're running under Hyprland
     if not os.getenv("HYPRLAND_INSTANCE_SIGNATURE"):
