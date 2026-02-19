@@ -1,6 +1,6 @@
 # Hyprhalt
 
-A graceful shutdown utility for Hyprland with Quickshell UI.
+A graceful shutdown utility for Hyprland with Quickshell UI. You can customize it to your heart's content.
 
 ## Demo
 
