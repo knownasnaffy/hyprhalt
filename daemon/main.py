@@ -1,6 +1,7 @@
 """Main entry point for hyprhalt."""
 
 import argparse
+import logging
 import os
 import signal
 import sys
@@ -11,6 +12,8 @@ from .app_tracker import get_all_apps, filter_own_process
 from .shutdown_manager import ShutdownManager
 from .dbus_service import start_service
 from .config import load_config
+
+logger = logging.getLogger("hyprhalt")
 
 
 def daemonize():
@@ -84,9 +87,17 @@ def main():
     """Main entry point."""
     args = parse_args()
 
+    # Setup logging
+    log_level = logging.DEBUG if args.verbose else logging.INFO
+    logging.basicConfig(
+        level=log_level,
+        format="%(levelname)s: %(message)s",
+        stream=sys.stderr,
+    )
+
     # Check we're running under Hyprland
     if not os.getenv("HYPRLAND_INSTANCE_SIGNATURE"):
-        print("Error: Not running under Hyprland", file=sys.stderr)
+        logger.error("Not running under Hyprland")
         sys.exit(1)
 
     # Daemonize unless --no-fork
@@ -99,21 +110,19 @@ def main():
     try:
         windows, layers = get_all_apps()
     except Exception as e:
-        print(f"Error getting apps: {e}", file=sys.stderr)
+        logger.error(f"Error getting apps: {e}")
         sys.exit(1)
 
     # Filter out our own process
     windows = filter_own_process(windows, os.getpid())
 
-    if args.verbose:
-        print(f"Found {len(windows)} windows and {len(layers)} layers")
+    logger.debug(f"Found {len(windows)} windows and {len(layers)} layers")
 
     # Load configuration
     config = load_config()
-    if args.verbose:
-        print(
-            f"Loaded config: sigterm={config.timing.sigterm_delay}s, sigkill={config.timing.sigkill_delay}s"
-        )
+    logger.debug(
+        f"Loaded config: sigterm={config.timing.sigterm_delay}s, sigkill={config.timing.sigkill_delay}s"
+    )
 
     # Create shutdown manager
     manager = ShutdownManager(
@@ -137,12 +146,11 @@ def main():
     # Start D-Bus service
     try:
         dbus_service = start_service(manager, args.verbose)
-        if args.verbose:
-            print("D-Bus service started")
+        logger.debug("D-Bus service started")
         # Write initial apps file
         dbus_service.update_apps_file()
     except Exception as e:
-        print(f"Warning: Failed to start D-Bus service: {e}")
+        logger.warning(f"Failed to start D-Bus service: {e}")
         dbus_service = None
 
     last_sigterm = 0
@@ -161,8 +169,7 @@ def main():
             if exit_code is not None:
                 if exit_code == 2:
                     # Cancel button clicked
-                    if args.verbose:
-                        print("UI exited with code 2 - Cancel requested")
+                    logger.info("UI exited with code 2 - Cancel requested")
                     manager.close_ui()
                     if dbus_service:
                         dbus_service.cleanup()
@@ -170,8 +177,7 @@ def main():
                     return False
                 elif exit_code == 3:
                     # Force kill button clicked
-                    if args.verbose:
-                        print("UI exited with code 3 - Force kill requested")
+                    logger.info("UI exited with code 3 - Force kill requested")
                     manager.escalate_sigkill()
                     time.sleep(1)
                     manager.finish_shutdown()
@@ -188,8 +194,7 @@ def main():
 
         if not manager.poll_windows():
             # All windows closed
-            if args.verbose:
-                print("All windows closed")
+            logger.debug("All windows closed")
             manager.finish_shutdown()
             if dbus_service:
                 dbus_service.cleanup()
@@ -200,19 +205,17 @@ def main():
 
         # Escalate at configured sigterm_delay
         if elapsed >= manager.config.timing.sigterm_delay and last_sigterm == 0:
-            if args.verbose:
-                print(
-                    f"{manager.config.timing.sigterm_delay} seconds elapsed, escalating to SIGTERM"
-                )
+            logger.info(
+                f"{manager.config.timing.sigterm_delay} seconds elapsed, escalating to SIGTERM"
+            )
             manager.escalate_sigterm()
             last_sigterm = elapsed
 
         # Escalate at configured sigkill_delay
         if elapsed >= manager.config.timing.sigkill_delay and last_sigkill == 0:
-            if args.verbose:
-                print(
-                    f"{manager.config.timing.sigkill_delay} seconds elapsed, escalating to SIGKILL"
-                )
+            logger.info(
+                f"{manager.config.timing.sigkill_delay} seconds elapsed, escalating to SIGKILL"
+            )
             manager.escalate_sigkill()
             last_sigkill = elapsed
 
@@ -233,8 +236,7 @@ def main():
     try:
         main_loop.run()
     except KeyboardInterrupt:
-        if args.verbose:
-            print("Interrupted by user")
+        logger.info("Interrupted by user")
         manager.close_ui()
 
     sys.exit(0)

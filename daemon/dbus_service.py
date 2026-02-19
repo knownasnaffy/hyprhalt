@@ -1,10 +1,13 @@
 """D-Bus service for UI communication."""
 
 import json
+import logging
 import os
 import dbus
 import dbus.service
 from dbus.mainloop.glib import DBusGMainLoop
+
+logger = logging.getLogger("hyprhalt")
 
 
 class HyprHaltService(dbus.service.Object):
@@ -24,16 +27,14 @@ class HyprHaltService(dbus.service.Object):
     @dbus.service.method("org.hyprland.HyprHalt", in_signature="", out_signature="")
     def Cancel(self):
         """Cancel shutdown and exit."""
-        print("!!! CANCEL REQUESTED VIA D-BUS !!!")
+        logger.info("Cancel requested via D-Bus")
         self.cancelled = True
-        print(f"!!! cancelled flag set to: {self.cancelled} !!!")
 
     @dbus.service.method("org.hyprland.HyprHalt", in_signature="", out_signature="")
     def ForceKill(self):
         """Force kill all apps immediately."""
-        print("!!! FORCE KILL REQUESTED VIA D-BUS !!!")
+        logger.info("Force kill requested via D-Bus")
         self.force_killed = True
-        print(f"!!! force_killed flag set to: {self.force_killed} !!!")
 
     @dbus.service.method("org.hyprland.HyprHalt", in_signature="", out_signature="s")
     def GetAppsFile(self):
@@ -55,10 +56,9 @@ class HyprHaltService(dbus.service.Object):
         try:
             with open(self.apps_file, "w") as f:
                 json.dump(apps, f)
-            if self.verbose:
-                print(f"Updated apps file with {len(apps)} apps")
+            logger.debug(f"Updated apps file with {len(apps)} apps")
         except Exception as e:
-            print(f"Failed to write apps file: {e}")
+            logger.error(f"Failed to write apps file: {e}")
 
     def cleanup(self):
         """Remove temp file."""

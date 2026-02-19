@@ -1,6 +1,7 @@
 """Core shutdown orchestration."""
 
 import json
+import logging
 import os
 import signal
 import subprocess
@@ -11,6 +12,8 @@ from typing import Optional
 from . import hyprland_ipc
 from .app_tracker import App
 from .config import Config
+
+logger = logging.getLogger("hyprhalt")
 
 
 class ShutdownManager:
@@ -60,9 +63,9 @@ class ShutdownManager:
                     stderr=ui_log,
                 )
             except FileNotFoundError:
-                print("Warning: quickshell not found, running without UI")
+                logger.warning("quickshell not found, running without UI")
             except Exception as e:
-                print(f"Warning: Failed to start UI: {e}")
+                logger.warning(f"Failed to start UI: {e}")
 
     def close_ui(self):
         """Kill UI process."""
@@ -77,7 +80,7 @@ class ShutdownManager:
     def graceful_close_windows(self):
         """Close all windows gracefully."""
         if self.dry_run:
-            print(f"[DRY RUN] Would close {len(self.windows)} windows")
+            logger.info(f"[DRY RUN] Would close {len(self.windows)} windows")
             return
 
         for app in self.windows:
@@ -86,7 +89,7 @@ class ShutdownManager:
     def close_all_layers(self):
         """Close all layer shells."""
         if self.dry_run:
-            print(f"[DRY RUN] Would close {len(self.layers)} layers")
+            logger.info(f"[DRY RUN] Would close {len(self.layers)} layers")
             return
 
         for layer in self.layers:
@@ -131,10 +134,9 @@ class ShutdownManager:
 
             # If app's window closed but PID is still alive, SIGTERM it
             if app.pid not in window_pids and app.is_alive():
-                if self.verbose:
-                    print(
-                        f"Window closed but PID {app.pid} ({app.class_name}) alive, sending SIGTERM"
-                    )
+                logger.debug(
+                    f"Window closed but PID {app.pid} ({app.class_name}) alive, sending SIGTERM"
+                )
                 try:
                     os.kill(app.pid, 15)  # SIGTERM
                     self._windowless_pids_termed.add(app.pid)
@@ -144,10 +146,10 @@ class ShutdownManager:
     def escalate_sigterm(self):
         """Re-send SIGTERM to remaining windows."""
         if self.dry_run:
-            print(f"[DRY RUN] Would SIGTERM {len(self.windows)} windows")
+            logger.info(f"[DRY RUN] Would SIGTERM {len(self.windows)} windows")
             return
 
-        print(f"Escalating: sending SIGTERM to {len(self.windows)} remaining windows")
+        logger.info(f"Escalating: sending SIGTERM to {len(self.windows)} remaining windows")
         for app in self.windows:
             if app.pid > 0:
                 try:
@@ -158,10 +160,10 @@ class ShutdownManager:
     def escalate_sigkill(self):
         """Force kill remaining windows."""
         if self.dry_run:
-            print(f"[DRY RUN] Would SIGKILL {len(self.windows)} windows")
+            logger.info(f"[DRY RUN] Would SIGKILL {len(self.windows)} windows")
             return
 
-        print(f"Escalating: sending SIGKILL to {len(self.windows)} remaining windows")
+        logger.info(f"Escalating: sending SIGKILL to {len(self.windows)} remaining windows")
         for app in self.windows:
             app.kill()
 
@@ -172,14 +174,14 @@ class ShutdownManager:
 
         if not self.no_exit:
             if self.dry_run:
-                print("[DRY RUN] Would exit Hyprland")
+                logger.info("[DRY RUN] Would exit Hyprland")
             else:
                 hyprland_ipc.exit_hyprland()
 
         # VT switch for NVIDIA+SDDM
         if self.vt_switch:
             if self.dry_run:
-                print(f"[DRY RUN] Would switch to VT {self.vt_switch}")
+                logger.info(f"[DRY RUN] Would switch to VT {self.vt_switch}")
             else:
                 try:
                     subprocess.run(
@@ -194,7 +196,7 @@ class ShutdownManager:
         # Run post-exit command
         if self.post_cmd:
             if self.dry_run:
-                print(f"[DRY RUN] Would execute post-command: {self.post_cmd}")
+                logger.info(f"[DRY RUN] Would execute post-command: {self.post_cmd}")
             else:
                 try:
                     # Run asynchronously like hyprshutdown does
@@ -204,7 +206,7 @@ class ShutdownManager:
                         stderr=subprocess.DEVNULL,
                     )
                 except Exception as e:
-                    print(f"Post-command failed: {e}")
+                    logger.error(f"Post-command failed: {e}")
 
     def _get_ui_path(self, filename: str) -> Optional[Path]:
         """Find UI file in installation directories."""
