@@ -76,9 +76,11 @@ hyprhalt --dry-run
 # With post-shutdown command
 hyprhalt --post-cmd "systemctl poweroff"
 
-# Explore
+# View help
 hyprhalt --help
 ```
+
+For detailed documentation, use `man hyprhalt` after installation, or view the [man page markdown](docs/hyprhalt.1.md) on GitHub.
 
 ## Customization
 
