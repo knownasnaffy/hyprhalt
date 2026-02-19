@@ -1,0 +1,248 @@
+.\" hyprhalt(1) manual page
+.\"
+.TH HYPRHALT 1 "February 2026" "hyprhalt" "User Commands"
+
+.SH NAME
+hyprhalt \- graceful shutdown utility for Hyprland with Quickshell UI
+
+.SH SYNOPSIS
+.B hyprhalt
+.RB [ \-h ]
+.RB [ \-\-dry-run ]
+.RB [ \-\-no-exit ]
+.RB [ \-\-post-cmd " " command ]
+.RB [ \-\-vt " " N ]
+.RB [ \-\-no-fork ]
+.RB [ \-\-verbose ]
+.RB [ \-\-text " " text ]
+
+.SH DESCRIPTION
+.B hyprhalt
+is a graceful shutdown utility for Hyprland that progressively closes
+applications while presenting a Quickshell-based user interface.
+
+It requests window closure via Hyprland IPC and escalates termination in
+stages if applications remain open: graceful close, then SIGTERM, and
+finally SIGKILL.
+
+By default, hyprhalt exits Hyprland after all applications have been
+closed. This behavior can be modified with command-line options.
+
+.SH OPTIONS
+
+.TP
+.BR \-h ", " \-\-help
+Show help information and exit.
+
+.TP
+.B \-\-dry-run
+Perform a simulation without actually closing applications or exiting
+Hyprland.
+
+.TP
+.B \-\-no-exit
+Do not exit Hyprland after all applications have been closed.
+
+.TP
+.BI \-\-post-cmd " command"
+Execute
+.I command
+after Hyprland exits.
+
+.TP
+.BI \-\-vt " N"
+Switch to virtual terminal
+.I N
+after Hyprland exits. This may be required with SDDM, which commonly
+runs on VT 2.
+
+.TP
+.B \-\-no-fork
+Do not daemonize. Run in the foreground instead of forking into the
+background.
+
+.TP
+.B \-\-verbose
+Enable verbose logging output.
+
+.TP
+.BI \-\-text " text"
+Override the default UI text ("Exiting") with custom
+.I text.
+
+.SH BEHAVIOR
+hyprhalt performs shutdown in progressive stages:
+
+.RS
+1. Request window closure via Hyprland IPC.
+.br
+2. Wait for applications to exit gracefully.
+.br
+3. Send SIGTERM to remaining processes.
+.br
+4. Send SIGKILL if processes still remain.
+.RE
+
+An overlay is shown immediately. If applications remain open after a
+short delay, a detailed interface is displayed.
+
+.SH CONFIGURATION
+
+hyprhalt reads configuration from:
+
+.TP
+.I $XDG_CONFIG_HOME/hyprhalt/config.toml
+User configuration file (typically
+.I $HOME/.config/hyprhalt/config.toml ).
+
+.TP
+.I /etc/xdg/hyprhalt/config.toml
+System-wide configuration file.
+
+User configuration overrides system configuration. If no configuration
+file is present, built-in defaults are used.
+
+Configuration is written in TOML format and supports the following
+sections:
+
+.SS [timing]
+
+.TP
+.B sigterm_delay
+Number of seconds to wait after the initial graceful close request
+before escalating to SIGTERM.
+
+.TP
+.B sigkill_delay
+Number of seconds to wait after SIGTERM before escalating to SIGKILL.
+
+.SS [colors]
+
+All color values accept hexadecimal strings (e.g. "#RRGGBB") or
+comma-separated RGB values.
+
+.TP
+.B backdrop
+Backdrop color.
+
+.TP
+.B backdrop_opacity
+Backdrop opacity as a floating-point value between 0 and 1.
+
+.TP
+.B modal_bg
+Modal background color.
+
+.TP
+.B modal_border
+Modal border color.
+
+.TP
+.B text_primary
+Primary text color.
+
+.TP
+.B text_secondary
+Secondary text color.
+
+.TP
+.B accent_danger
+Color used for destructive or force actions.
+
+.TP
+.B status_alive
+Indicator color for running applications.
+
+.TP
+.B status_closed
+Indicator color for closed applications.
+
+.SS [ui]
+
+.TP
+.B border_radius
+Border radius of the main window.
+
+.TP
+.B modal_border_radius
+Border radius of modal dialogs.
+
+.SH FILES
+
+.TP
+.I /usr/bin/hyprhalt
+Executable wrapper script. Ensures the Python interpreter loads modules
+from
+.I /usr/share/hyprhalt
+and invokes the main entry point.
+
+.TP
+.I /usr/share/hyprhalt
+Application source directory containing daemon logic and UI files.
+
+Directory layout:
+
+.nf
+/usr/share/hyprhalt
+├── daemon
+│   ├── app_tracker.py
+│   ├── config.py
+│   ├── dbus_service.py
+│   ├── hyprland_ipc.py
+│   ├── __init__.py
+│   ├── main.py
+│   └── shutdown_manager.py
+└── ui
+    └── shell.qml
+.fi
+
+The
+.I daemon
+subdirectory contains shutdown logic, IPC handling, configuration
+parsing, and D-Bus integration. The
+.I ui
+subdirectory contains the Quickshell interface definition.
+
+.SH REQUIREMENTS
+Python 3.11+
+.br
+Hyprland
+.br
+Quickshell
+.br
+dbus-python
+.br
+PyGObject
+
+.SH EXAMPLES
+
+.TP
+Basic usage:
+.B hyprhalt
+
+.TP
+Dry run:
+.B hyprhalt \-\-dry-run
+
+.TP
+Shutdown after Hyprland exits:
+.B hyprhalt \-\-post-cmd "systemctl poweroff"
+
+.TP
+Switch to VT 2 after exit (commonly required when using SDDM):
+.B hyprhalt \-\-vt 2
+
+.TP
+Run in foreground with verbose logging:
+.B hyprhalt \-\-no-fork \-\-verbose
+
+.SH AUTHOR
+Barinderpreet Singh <contact@barinderpreet.com>
+
+.SH LICENSE
+This software is released into the public domain under the terms of
+The Unlicense.
+
+.SH SEE ALSO
+.BR hyprland (1) ,
+.BR systemctl (1)
