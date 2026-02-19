@@ -1,5 +1,6 @@
 """Configuration management for hyprhalt."""
 
+import logging
 import os
 from pathlib import Path
 from typing import NamedTuple
@@ -8,6 +9,8 @@ try:
     import tomllib
 except ImportError:
     import tomli as tomllib
+
+logger = logging.getLogger("hyprhalt")
 
 
 class TimingConfig(NamedTuple):
@@ -41,8 +44,36 @@ class Config(NamedTuple):
 def hex_to_rgb(hex_color: str) -> str:
     """Convert hex color (#RRGGBB) to 'R,G,B' string."""
     hex_color = hex_color.lstrip("#")
-    r, g, b = int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
+    if len(hex_color) != 6:
+        raise ValueError(f"Invalid hex color: #{hex_color} (must be 6 characters)")
+    try:
+        r, g, b = int(hex_color[0:2], 16), int(hex_color[2:4], 16), int(hex_color[4:6], 16)
+    except ValueError:
+        raise ValueError(f"Invalid hex color: #{hex_color} (must contain valid hex digits)")
     return f"{r},{g},{b}"
+
+
+def validate_config(config: Config) -> None:
+    """Validate configuration values."""
+    # Validate timing
+    if config.timing.sigterm_delay < 0:
+        raise ValueError(f"sigterm_delay must be non-negative, got {config.timing.sigterm_delay}")
+    if config.timing.sigkill_delay < 0:
+        raise ValueError(f"sigkill_delay must be non-negative, got {config.timing.sigkill_delay}")
+    if config.timing.sigkill_delay < config.timing.sigterm_delay:
+        raise ValueError(
+            f"sigkill_delay ({config.timing.sigkill_delay}) must be >= sigterm_delay ({config.timing.sigterm_delay})"
+        )
+    
+    # Validate colors
+    if not (0 <= config.colors.backdrop_opacity <= 1):
+        raise ValueError(f"backdrop_opacity must be between 0 and 1, got {config.colors.backdrop_opacity}")
+    
+    # Validate UI
+    if config.ui.border_radius < 0:
+        raise ValueError(f"border_radius must be non-negative, got {config.ui.border_radius}")
+    if config.ui.modal_border_radius < 0:
+        raise ValueError(f"modal_border_radius must be non-negative, got {config.ui.modal_border_radius}")
 
 
 def load_config() -> Config:
@@ -70,70 +101,80 @@ def load_config() -> Config:
     if not config_file:
         return Config()
 
-    with open(config_file, "rb") as f:
-        data = tomllib.load(f)
+    try:
+        with open(config_file, "rb") as f:
+            data = tomllib.load(f)
+    except Exception as e:
+        logger.error(f"Failed to parse config file {config_file}: {e}")
+        raise
 
-    # Parse timing
-    timing_data = data.get("timing", {})
-    timing = TimingConfig(
-        sigterm_delay=timing_data.get("sigterm_delay", 8),
-        sigkill_delay=timing_data.get("sigkill_delay", 15),
-    )
+    try:
+        # Parse timing
+        timing_data = data.get("timing", {})
+        timing = TimingConfig(
+            sigterm_delay=timing_data.get("sigterm_delay", 8),
+            sigkill_delay=timing_data.get("sigkill_delay", 15),
+        )
 
-    # Parse colors (convert hex to RGB if needed)
-    colors_data = data.get("colors", {})
-    colors = ColorConfig(
-        backdrop=(
-            hex_to_rgb(colors_data["backdrop"])
-            if "backdrop" in colors_data
-            else "12,14,20"
-        ),
-        backdrop_opacity=colors_data.get("backdrop_opacity", 0.7),
-        modal_bg=(
-            hex_to_rgb(colors_data["modal_bg"])
-            if "modal_bg" in colors_data
-            else "27,30,45"
-        ),
-        modal_border=(
-            hex_to_rgb(colors_data["modal_border"])
-            if "modal_border" in colors_data
-            else "41,46,66"
-        ),
-        text_primary=(
-            hex_to_rgb(colors_data["text_primary"])
-            if "text_primary" in colors_data
-            else "192,202,245"
-        ),
-        text_secondary=(
-            hex_to_rgb(colors_data["text_secondary"])
-            if "text_secondary" in colors_data
-            else "169,177,214"
-        ),
-        accent_danger=(
-            hex_to_rgb(colors_data["accent_danger"])
-            if "accent_danger" in colors_data
-            else "247,118,142"
-        ),
-        status_alive=(
-            hex_to_rgb(colors_data["status_alive"])
-            if "status_alive" in colors_data
-            else "224,175,104"
-        ),
-        status_closed=(
-            hex_to_rgb(colors_data["status_closed"])
-            if "status_closed" in colors_data
-            else "158,206,106"
-        ),
-    )
+        # Parse colors (convert hex to RGB if needed)
+        colors_data = data.get("colors", {})
+        colors = ColorConfig(
+            backdrop=(
+                hex_to_rgb(colors_data["backdrop"])
+                if "backdrop" in colors_data
+                else "12,14,20"
+            ),
+            backdrop_opacity=colors_data.get("backdrop_opacity", 0.7),
+            modal_bg=(
+                hex_to_rgb(colors_data["modal_bg"])
+                if "modal_bg" in colors_data
+                else "27,30,45"
+            ),
+            modal_border=(
+                hex_to_rgb(colors_data["modal_border"])
+                if "modal_border" in colors_data
+                else "41,46,66"
+            ),
+            text_primary=(
+                hex_to_rgb(colors_data["text_primary"])
+                if "text_primary" in colors_data
+                else "192,202,245"
+            ),
+            text_secondary=(
+                hex_to_rgb(colors_data["text_secondary"])
+                if "text_secondary" in colors_data
+                else "169,177,214"
+            ),
+            accent_danger=(
+                hex_to_rgb(colors_data["accent_danger"])
+                if "accent_danger" in colors_data
+                else "247,118,142"
+            ),
+            status_alive=(
+                hex_to_rgb(colors_data["status_alive"])
+                if "status_alive" in colors_data
+                else "224,175,104"
+            ),
+            status_closed=(
+                hex_to_rgb(colors_data["status_closed"])
+                if "status_closed" in colors_data
+                else "158,206,106"
+            ),
+        )
 
-    # Parse UI
-    ui_data = data.get("ui", {})
-    ui = UIConfig(
-        border_radius=ui_data.get("border_radius", 16),
-        modal_border_radius=ui_data.get("modal_border_radius", 10),
-    )
+        # Parse UI
+        ui_data = data.get("ui", {})
+        ui = UIConfig(
+            border_radius=ui_data.get("border_radius", 16),
+            modal_border_radius=ui_data.get("modal_border_radius", 10),
+        )
 
-    return Config(timing=timing, colors=colors, ui=ui)
+        config = Config(timing=timing, colors=colors, ui=ui)
+        validate_config(config)
+        return config
+    except (ValueError, KeyError) as e:
+        logger.error(f"Invalid configuration in {config_file}: {e}")
+        raise
 
 
 def create_default_config():
