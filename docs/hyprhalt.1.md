@@ -57,7 +57,8 @@ closed. This behavior can be modified with command-line options.
 **\--vt*** N*
 
 :   Switch to virtual terminal *N* after Hyprland exits. This may be
-    required with SDDM, which commonly runs on VT 2.
+    required with certain display manager configurations (e.g., SDDM,
+    which commonly runs on VT 2).
 
 <!-- -->
 
