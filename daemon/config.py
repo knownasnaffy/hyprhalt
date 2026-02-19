@@ -183,6 +183,13 @@ def create_default_config():
     config_dir = Path(xdg_config_home) / "hyprhalt"
     config_file = config_dir / "config.toml"
 
+    if config_file.exists():
+        print(f"Config file already exists at {config_file}")
+        response = input("Overwrite? [y/N]: ").strip().lower()
+        if response != "y":
+            print("Aborted")
+            return
+
     config_dir.mkdir(parents=True, exist_ok=True)
 
     default_config = """# Hyprhalt Configuration

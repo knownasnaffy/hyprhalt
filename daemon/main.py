@@ -12,7 +12,7 @@ from gi.repository import GLib
 from .app_tracker import get_all_apps, filter_own_process
 from .shutdown_manager import ShutdownManager
 from .dbus_service import start_service
-from .config import load_config
+from .config import load_config, create_default_config
 
 logger = logging.getLogger("hyprhalt")
 
@@ -80,6 +80,11 @@ def parse_args():
         help="Validate config file and exit",
     )
     parser.add_argument(
+        "--generate-config",
+        action="store_true",
+        help="Generate default config file and exit",
+    )
+    parser.add_argument(
         "--dry-run",
         action="store_true",
         help="Don't actually close apps or exit Hyprland",
@@ -127,6 +132,15 @@ def main():
     if args.version:
         print(f"hyprhalt {get_version()}")
         sys.exit(0)
+
+    # Handle --generate-config
+    if args.generate_config:
+        try:
+            create_default_config()
+            sys.exit(0)
+        except Exception as e:
+            print(f"Error: Failed to generate config: {e}", file=sys.stderr)
+            sys.exit(1)
 
     # Setup logging
     log_level = logging.DEBUG if args.verbose else logging.INFO
